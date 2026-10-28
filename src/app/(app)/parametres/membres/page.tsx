@@ -124,7 +124,7 @@ export default async function MembresAdminPage() {
               />
               <SubmitButton>Envoyer l’invitation</SubmitButton>
             </ActionForm>
-            <p className="mt-3 text-xs text-[var(--c-ink-faint)]">La personne reçoit un lien pour choisir son mot de passe. Les équipes n'ont pas de responsable : le bureau gère les tâches et les projets.</p>
+            <p className="mt-3 text-xs text-[var(--c-ink-faint)]">La personne reçoit un lien pour choisir son mot de passe. Les équipes n’ont pas de responsable : le bureau gère les tâches et les projets.</p>
           </Card>
 
           <Card id="poles">
