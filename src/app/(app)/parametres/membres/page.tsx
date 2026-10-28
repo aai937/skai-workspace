@@ -71,7 +71,6 @@ export default async function MembresAdminPage() {
                       label="Rôle"
                       options={[
                         { value: 'membre', label: 'Membre' },
-                        { value: 'responsable', label: 'Responsable' },
                         { value: 'retirer', label: 'Retirer du équipe' },
                       ]}
                       defaultValue="membre"
@@ -120,13 +119,12 @@ export default async function MembresAdminPage() {
                 label="Rôle dans le équipe"
                 options={[
                   { value: 'membre', label: 'Membre' },
-                  { value: 'responsable', label: 'Responsable' },
                 ]}
                 defaultValue="membre"
               />
               <SubmitButton>Envoyer l’invitation</SubmitButton>
             </ActionForm>
-            <p className="mt-3 text-xs text-[var(--c-ink-faint)]">La personne reçoit un lien pour choisir son mot de passe. Le responsable de équipe nommé ici doit être accepté par le bureau.</p>
+            <p className="mt-3 text-xs text-[var(--c-ink-faint)]">La personne reçoit un lien pour choisir son mot de passe. Les équipes n'ont pas de responsable : le bureau gère les tâches et les projets.</p>
           </Card>
 
           <Card id="poles">
