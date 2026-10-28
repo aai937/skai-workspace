@@ -33,7 +33,7 @@ export default async function NouvelEvenementPage() {
           <TextField name="location" label="Lieu" maxLength={200} />
           <TextField name="budgetEuros" label="Budget (€, facultatif)" inputMode="decimal" />
           <fieldset className="md:col-span-2">
-            <legend className="text-sm font-medium">Pôles impliqués</legend>
+            <legend className="text-sm font-medium">Équipes impliqués</legend>
             <div className="mt-2 flex flex-wrap gap-3">
               {options.poles.map((p) => (
                 <label key={p.value} className="inline-flex items-center gap-2 text-sm">

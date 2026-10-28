@@ -1,29 +1,24 @@
 // Règles et validation de la messagerie, des annonces et des préférences de mail.
 import { z } from 'zod';
 import type { Viewer } from './permissions';
-import { isAnyPoleResponsable, isPoleResponsable } from './permissions';
 
 export const MAIL_DIGEST_OPTIONS = ['quotidien', 'hebdomadaire', 'desactive'] as const;
 export type MailDigest = (typeof MAIL_DIGEST_OPTIONS)[number];
 
 export const REACTION_EMOJIS = ['👍', '🎉', '❤️', '👀', '🙏', '✅'] as const;
 
-// Un message est publié par tout membre actif dans un canal ouvert. Les canaux libres sont créés
-// par le bureau ou un responsable ; les canaux de pôle, projet et événement sont créés automatiquement.
+// Messages : tout membre actif. Canaux libres : le bureau. Canaux de équipe, projet et événement : automatiques.
 export function canCreateChannel(viewer: Viewer): boolean {
-  return viewer.isBureau || Object.values(viewer.poleRoles).includes('responsable');
+  return viewer.isBureau;
 }
 
-// Annonce « tous les membres » : bureau uniquement. Annonce « pôle » : bureau ou responsable de ce pôle.
-export function canPublishAnnouncement(viewer: Viewer, audience: 'tous' | 'pole', poleId: string | null): boolean {
-  if (viewer.isBureau) {
-    return true;
-  }
-  return audience === 'pole' && isPoleResponsable(viewer, poleId);
+// Annonces : le bureau uniquement (pour tous les membres ou pour une équipe).
+export function canPublishAnnouncement(viewer: Viewer): boolean {
+  return viewer.isBureau;
 }
 
 export function canPublishAnnouncementAnywhere(viewer: Viewer): boolean {
-  return viewer.isBureau || isAnyPoleResponsable(viewer);
+  return viewer.isBureau;
 }
 
 export function canDeleteMessage(viewer: Viewer, message: { authorId: string | null }): boolean {
@@ -55,7 +50,7 @@ export const announcementSchema = z
   })
   .superRefine((value, ctx) => {
     if (value.audience === 'pole' && !value.poleId) {
-      ctx.addIssue({ code: 'custom', path: ['poleId'], message: 'Choisissez le pôle concerné.' });
+      ctx.addIssue({ code: 'custom', path: ['poleId'], message: 'Choisissez le équipe concerné.' });
     }
   });
 

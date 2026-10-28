@@ -116,7 +116,7 @@ export default async function IdeeDetailPage({ params }: { params: Promise<{ id:
                 <TextAreaField name="problem" label="Problème" required defaultValue={idea.problem} />
                 <TextAreaField name="solution" label="Solution" required defaultValue={idea.solution} />
                 <TextAreaField name="benefits" label="Bénéfices" defaultValue={idea.benefits} />
-                <SelectField name="poleId" label="Pôle" options={options.poles} placeholder="Aucun" defaultValue={idea.pole?.id ?? ''} />
+                <SelectField name="poleId" label="Équipe" options={options.poles} placeholder="Aucun" defaultValue={idea.pole?.id ?? ''} />
                 <SelectField
                   name="effort"
                   label="Effort"

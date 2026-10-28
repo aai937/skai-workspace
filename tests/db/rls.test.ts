@@ -81,7 +81,7 @@ beforeAll(async () => {
   await db.query(
     `insert into public.pole_memberships (profile_id, pole_id, role) values
       ($1, $3, 'responsable'), ($2, $3, 'membre')`,
-    [ids.responsable, ids.membre, poleId],
+    [ids.bureau, ids.membre, poleId],
   );
 });
 
@@ -129,17 +129,6 @@ describe('élévation de privilèges', () => {
     expect(r.rows[0]!.is_active).toBe(false);
   });
 
-  it('un responsable ne peut pas s\'ajouter comme responsable d\'un autre pôle', async () => {
-    const pole = await db.query<{ id: string }>("select id from public.poles where slug = 'women-in-tech'");
-    await expectDenied(
-      asUser(ids.responsable, () =>
-        db.query(
-          "insert into public.pole_memberships (profile_id, pole_id, role) values ($1, $2, 'responsable')",
-          [ids.responsable, pole.rows[0]!.id],
-        ),
-      ),
-    );
-  });
 
   it('le bureau peut changer le rôle d\'un membre', async () => {
     await asUser(ids.bureau, () =>
@@ -168,12 +157,12 @@ describe('tâches', () => {
     poleId = (await db.query<{ id: string }>("select id from public.poles where slug = 'evenementiel-partenariats'")).rows[0]!.id;
   });
 
-  it('un responsable crée une tâche dans son pôle et l\'attribue à un membre', async () => {
-    const r = await asUser(ids.responsable, () =>
+  it('le bureau crée une tâche dans son pôle et l\'attribue à un membre', async () => {
+    const r = await asUser(ids.bureau, () =>
       db.query<{ id: string }>(
         `insert into public.tasks (title, pole_id, creator_id, assignee_id, due_date)
          values ('Réserver la salle', $1, $2, $3, current_date + 7) returning id`,
-        [poleId, ids.responsable, ids.membre],
+        [poleId, ids.bureau, ids.membre],
       ),
     );
     taskId = r.rows[0]!.id;
@@ -191,18 +180,7 @@ describe('tâches', () => {
     );
   });
 
-  it('un responsable ne peut pas créer de tâche dans un autre pôle', async () => {
-    const other = await db.query<{ id: string }>("select id from public.poles where slug = 'women-in-tech'");
-    await expectDenied(
-      asUser(ids.responsable, () =>
-        db.query(
-          'insert into public.tasks (title, pole_id, creator_id) values ($1, $2, $3)',
-          ['Hors périmètre', other.rows[0]!.id, ids.responsable],
-        ),
-      ),
-    );
-  });
-
+  
   it('l\'assigné met à jour le statut de sa tâche', async () => {
     await asUser(ids.membre, () =>
       db.query("update public.tasks set status = 'en_cours' where id = $1", [taskId]),
@@ -235,7 +213,7 @@ describe('tâches', () => {
         [taskId],
       ),
     );
-    const notifs = await asUser(ids.responsable, () =>
+    const notifs = await asUser(ids.bureau, () =>
       db.query<{ kind: string }>("select kind from public.notifications where kind = 'task_blocked'"),
     );
     expect(notifs.rows.length).toBeGreaterThan(0);
@@ -260,7 +238,7 @@ describe('tâches', () => {
   });
 
   it('seul le bureau peut supprimer une tâche', async () => {
-    await asUser(ids.responsable, () => db.query('delete from public.tasks where id = $1', [taskId]));
+    await asUser(ids.membre, () => db.query('delete from public.tasks where id = $1', [taskId]));
     const r = await db.query('select id from public.tasks where id = $1', [taskId]);
     expect(r.rows).toHaveLength(1);
   });
@@ -275,10 +253,10 @@ describe('commentaires et mentions', () => {
     await asUser(ids.membre, () =>
       db.query(
         'insert into public.comments (target_type, target_id, author_id, body, mentions) values ($1, $2, $3, $4, $5)',
-        ['task', t.rows[0]!.id, ids.membre, 'Peux-tu regarder ?', [ids.responsable]],
+        ['task', t.rows[0]!.id, ids.membre, 'Peux-tu regarder ?', [ids.bureau]],
       ),
     );
-    const n = await asUser(ids.responsable, () =>
+    const n = await asUser(ids.bureau, () =>
       db.query<{ kind: string }>("select kind from public.notifications where kind = 'mention'"),
     );
     expect(n.rows.length).toBeGreaterThan(0);
@@ -342,12 +320,12 @@ describe('idées', () => {
   });
 
   it('un membre vote une seule fois par idée', async () => {
-    await asUser(ids.responsable, () =>
-      db.query('insert into public.idea_votes (idea_id, voter_id) values ($1, $2)', [ideaId, ids.responsable]),
+    await asUser(ids.bureau, () =>
+      db.query('insert into public.idea_votes (idea_id, voter_id) values ($1, $2)', [ideaId, ids.bureau]),
     );
     await expectDenied(
-      asUser(ids.responsable, () =>
-        db.query('insert into public.idea_votes (idea_id, voter_id) values ($1, $2)', [ideaId, ids.responsable]),
+      asUser(ids.bureau, () =>
+        db.query('insert into public.idea_votes (idea_id, voter_id) values ($1, $2)', [ideaId, ids.bureau]),
       ),
     );
   });
@@ -373,14 +351,14 @@ describe('idées', () => {
 });
 
 describe('projets, événements et pôles', () => {
-  it('seul un responsable ou le bureau crée un projet', async () => {
+  it('seul le bureau ou le bureau crée un projet', async () => {
     await expectDenied(
       asUser(ids.membre, () =>
         db.query('insert into public.projects (title, created_by) values ($1, $2)', ['Projet sauvage', ids.membre]),
       ),
     );
-    await asUser(ids.responsable, () =>
-      db.query('insert into public.projects (title, created_by) values ($1, $2)', ['Projet pôle', ids.responsable]),
+    await asUser(ids.bureau, () =>
+      db.query('insert into public.projects (title, created_by) values ($1, $2)', ['Projet pôle', ids.bureau]),
     );
     const r = await db.query('select id from public.projects');
     expect(r.rows.length).toBe(1);
@@ -398,15 +376,15 @@ describe('projets, événements et pôles', () => {
     );
   });
 
-  it('un responsable crée un événement et l\'associe à son pôle', async () => {
-    const e = await asUser(ids.responsable, () =>
+  it('le bureau crée un événement et l\'associe à son pôle', async () => {
+    const e = await asUser(ids.bureau, () =>
       db.query<{ id: string }>(
         "insert into public.events (title, starts_at, created_by) values ('Conférence IA', now() + interval '30 days', $1) returning id",
-        [ids.responsable],
+        [ids.bureau],
       ),
     );
     const pole = await db.query<{ id: string }>("select id from public.poles where slug = 'evenementiel-partenariats'");
-    await asUser(ids.responsable, () =>
+    await asUser(ids.bureau, () =>
       db.query('insert into public.event_poles (event_id, pole_id) values ($1, $2)', [e.rows[0]!.id, pole.rows[0]!.id]),
     );
     const r = await db.query('select 1 from public.event_poles where event_id = $1', [e.rows[0]!.id]);
@@ -415,7 +393,7 @@ describe('projets, événements et pôles', () => {
 
   it('les pôles ne sont modifiables que par le bureau', async () => {
     await expectDenied(
-      asUser(ids.responsable, () => db.query("insert into public.poles (slug, name) values ('hack', 'Hack')")),
+      asUser(ids.membre, () => db.query("insert into public.poles (slug, name) values ('hack', 'Hack')")),
     );
   });
 });

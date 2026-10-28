@@ -16,32 +16,32 @@ export default async function AnnoncesPage() {
   const canPublish = canPublishAnnouncementAnywhere(session.viewer);
   const isBureau = session.viewer.isBureau;
 
-  // Un responsable ne publie que pour ses pôles ; le bureau publie aussi pour tous.
+  // Seul le bureau publie : pour tous les membres ou pour une équipe.
   const allPoles = await listPoles();
-  const poles = isBureau ? allPoles : allPoles.filter((p) => session.poles.some((sp) => sp.id === p.id && sp.role === 'responsable'));
+  const poles = isBureau ? allPoles : [];
   const audienceOptions = [
     ...(isBureau ? [{ value: 'tous', label: 'Tous les membres' }] : []),
-    ...(poles.length > 0 ? [{ value: 'pole', label: 'Un pôle' }] : []),
+    ...(poles.length > 0 ? [{ value: 'pole', label: 'Un équipe' }] : []),
   ];
 
   return (
     <>
       <PageHeader
         title="Annonces"
-        description="Les informations officielles de l’association. Les annonces épinglées restent en haut de la liste."
+        description={canPublish ? 'Publiez les informations officielles et suivez qui les a lues.' : 'Les informations officielles de l’association. Les annonces épinglées restent en haut.'}
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="flex flex-col gap-4 lg:col-span-2">
           {announcements.length === 0 ? (
-            <EmptyState title="Aucune annonce" text="Les annonces du bureau et des responsables apparaîtront ici." />
+            <EmptyState title="Aucune annonce" text="Les annonces du bureau apparaîtront ici." />
           ) : (
             announcements.map((a) => (
               <Card key={a.id} className={a.pinned ? 'border-[var(--c-accent)]' : ''}>
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="flex flex-wrap items-center gap-2">
                     {a.pinned ? <Badge tone="accent">Épinglée</Badge> : null}
-                    {a.audience === 'pole' ? <Badge>{a.pole?.name ?? 'Pôle'}</Badge> : <Badge>Tous les membres</Badge>}
+                    {a.audience === 'pole' ? <Badge>{a.pole?.name ?? 'Équipe'}</Badge> : <Badge>Tous les membres</Badge>}
                     {!a.read ? <Badge tone="warning">Nouvelle</Badge> : null}
                   </div>
                   <span className="text-xs text-[var(--c-ink-faint)]">
@@ -77,7 +77,7 @@ export default async function AnnoncesPage() {
               <SelectField name="audience" label="Destinataires" options={audienceOptions} defaultValue={audienceOptions[0]!.value} />
               <SelectField
                 name="poleId"
-                label="Pôle (si « Un pôle »)"
+                label="Équipe (si « Un équipe »)"
                 options={poles.map((p) => ({ value: p.id, label: p.name }))}
                 placeholder="Aucun"
               />

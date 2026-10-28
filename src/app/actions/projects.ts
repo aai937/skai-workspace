@@ -45,11 +45,11 @@ function projectFromForm(formData: FormData) {
   };
 }
 
-// Création d'un projet, y compris transversal : plusieurs pôles, un responsable.
+// Création d'un projet, y compris transversal : plusieurs équipes, un responsable.
 export async function createProjectAction(formData: FormData): Promise<ActionResult> {
   const session = await requireSession();
   if (!canCreateProject(session.viewer)) {
-    return fail('Seul le bureau ou un responsable de pôle peut créer un projet.');
+    return fail('Seul le bureau ou un responsable de équipe peut créer un projet.');
   }
   const parsed = projectInputSchema.safeParse(projectFromForm(formData));
   if (!parsed.success) {
@@ -82,7 +82,7 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
     .from('project_poles')
     .insert(input.poleIds.map((pole_id) => ({ project_id: data.id, pole_id })));
   if (polesError) {
-    // Pas de projet sans pôle : on annule la création.
+    // Pas de projet sans équipe : on annule la création.
     await supabase.from('projects').delete().eq('id', data.id);
     return fail(dbErrorMessage(polesError));
   }
@@ -123,7 +123,7 @@ export async function updateProjectAction(projectId: string, formData: FormData)
     return fail(dbErrorMessage(error));
   }
 
-  // Remplacement de l'ensemble des pôles impliqués.
+  // Remplacement de l'ensemble des équipes impliqués.
   await loaded.supabase.from('project_poles').delete().eq('project_id', projectId);
   const { error: polesError } = await loaded.supabase
     .from('project_poles')

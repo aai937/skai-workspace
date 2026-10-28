@@ -4,8 +4,8 @@ import { Card, CardTitle, EmptyState, LateBadge, LinkButton, PageHeader, Priorit
 import { requireSession } from '@/lib/auth';
 import { listAnnouncements } from '@/lib/data/messaging';
 import { LABELS } from '@/lib/domain/constants';
-import { formatDate, formatDateTime } from '@/lib/domain/format';
-import { getBureauDashboard, getMemberDashboard, getResponsableDashboard } from '@/lib/data/dashboard';
+import { TIME_ZONE, formatDate, formatDateTime } from '@/lib/domain/format';
+import { getBureauDashboard, getMemberDashboard } from '@/lib/data/dashboard';
 import type { TaskListItem } from '@/lib/data/tasks';
 
 export const metadata: Metadata = { title: "Vue d'ensemble" };
@@ -18,7 +18,7 @@ function TaskRow({ task }: { task: TaskListItem }) {
           {task.title}
         </Link>
         <p className="mt-0.5 text-xs text-[var(--c-ink-faint)]">
-          {task.pole?.name ?? 'Sans pôle'}
+          {task.pole?.name ?? 'Sans équipe'}
           {task.due_date ? ` · échéance ${formatDate(task.due_date)}` : ''}
         </p>
       </div>
@@ -37,27 +37,69 @@ function TaskList({ tasks, empty }: { tasks: TaskListItem[]; empty: string }) {
   return <ul className="divide-y divide-[var(--c-line)]">{tasks.map((t) => <TaskRow key={t.id} task={t} />)}</ul>;
 }
 
+// Répartition des tâches par statut : une barre et une légende, au lieu d'une case par statut.
+function StatusBar({ counts }: { counts: Record<string, number> }) {
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  return (
+    <div className="flex flex-col gap-3">
+      {total > 0 ? (
+        <div className="flex h-2 overflow-hidden rounded-full bg-[var(--c-surface-muted)]" role="img" aria-label="Répartition des tâches par statut">
+          {Object.entries(counts).map(([status, n]) =>
+            n > 0 ? (
+              <span key={status} className={STATUS_BAR[status] ?? 'bg-[var(--c-line-strong)]'} style={{ width: `${(n / total) * 100}%` }} />
+            ) : null,
+          )}
+        </div>
+      ) : null}
+      <ul className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-3">
+        {Object.entries(counts).map(([status, n]) => (
+          <li key={status}>
+            <Link href={`/taches?statut=${status}`} className="flex items-center justify-between gap-2 rounded-md py-1 hover:text-[var(--c-accent)]">
+              <span className="flex items-center gap-2 text-[var(--c-ink-soft)]">
+                <span className={`size-2 rounded-full ${STATUS_BAR[status] ?? 'bg-[var(--c-line-strong)]'}`} aria-hidden="true" />
+                {LABELS.taskStatus[status as keyof typeof LABELS.taskStatus]}
+              </span>
+              <span className="font-semibold tabular-nums">{n}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+const STATUS_BAR: Record<string, string> = {
+  a_faire: 'bg-[var(--c-line-strong)]',
+  en_cours: 'bg-[var(--c-accent)]',
+  en_attente: 'bg-[var(--c-warning)]',
+  bloquee: 'bg-[var(--c-danger)]',
+  en_revue: 'bg-[var(--c-ink-faint)]',
+  terminee: 'bg-[var(--c-success)]',
+};
+
+// « Bonjour » jusqu'à 18 h, « Bonsoir » ensuite (heure de Paris).
+function salutation(): string {
+  const heure = Number(new Intl.DateTimeFormat('fr-FR', { hour: 'numeric', hour12: false, timeZone: TIME_ZONE }).format(new Date()));
+  return heure < 18 ? 'Bonjour' : 'Bonsoir';
+}
+
 export default async function TableauDeBordPage() {
   const session = await requireSession();
   const greeting = session.profile.full_name.split(' ')[0];
   const isBureau = session.viewer.isBureau;
-  const isResponsable = session.poles.some((p) => p.role === 'responsable');
 
   const member = await getMemberDashboard(session);
-  const responsable = isResponsable && !isBureau ? await getResponsableDashboard(session) : null;
   const bureau = isBureau ? await getBureauDashboard() : null;
   const announcements = (await listAnnouncements(session.viewer.id)).slice(0, 3);
 
   return (
     <>
       <PageHeader
-        title={`Bonjour ${greeting}`}
+        title={`${salutation()} ${greeting}`}
         description={
           isBureau
             ? 'Vue globale de l’association : ce qui avance, ce qui bloque et ce qui attend une décision.'
-            : isResponsable
-              ? 'Vos priorités, et l’avancement des pôles dont vous êtes responsable.'
-              : 'Vos priorités, vos échéances et les événements à venir.'
+            : 'Vos priorités, vos échéances et les événements à venir.'
         }
         actions={<LinkButton href="/taches?vue=mes-taches" variant="secondary">Mes tâches</LinkButton>}
       />
@@ -88,45 +130,10 @@ export default async function TableauDeBordPage() {
             <TaskList tasks={member.upcoming} empty="Aucune échéance dans les 14 prochains jours." />
           </Card>
 
-          {responsable ? (
-            <Card>
-              <CardTitle>Mon périmètre</CardTitle>
-              <div className="flex flex-col gap-5">
-                {responsable.poles.length === 0 ? (
-                  <p className="text-sm text-[var(--c-ink-faint)]">Aucune tâche dans vos pôles pour le moment.</p>
-                ) : (
-                  responsable.poles.map((p) => (
-                    <div key={p.id}>
-                      <p className="mb-2 text-sm font-medium">{p.name}</p>
-                      <ProgressBar value={p.progress} label={`Avancement de ${p.name}`} />
-                    </div>
-                  ))
-                )}
-              </div>
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <div>
-                  <p className="mb-1 text-sm font-medium">Blocages</p>
-                  <TaskList tasks={responsable.blocked} empty="Aucun blocage signalé." />
-                </div>
-                <div>
-                  <p className="mb-1 text-sm font-medium">Missions à attribuer</p>
-                  <TaskList tasks={responsable.toAssign.slice(0, 6)} empty="Toutes les tâches ont un responsable." />
-                </div>
-              </div>
-              <p className="mt-4 text-xs text-[var(--c-ink-faint)]">
-                Répartition : {Object.entries(responsable.statusCounts).map(([s, n]) => `${LABELS.taskStatus[s as keyof typeof LABELS.taskStatus]} ${n}`).join(' · ')}
-              </p>
-            </Card>
-          ) : null}
-
           {bureau ? (
             <Card>
               <CardTitle>Vue du bureau</CardTitle>
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                {Object.entries(bureau.statusCounts).map(([status, n]) => (
-                  <Stat key={status} label={LABELS.taskStatus[status as keyof typeof LABELS.taskStatus]} value={n} href={`/taches?statut=${status}`} />
-                ))}
-              </div>
+              <StatusBar counts={bureau.statusCounts} />
               <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
                 <Stat label="Tâches en retard" value={bureau.lateCount} tone={bureau.lateCount > 0 ? 'danger' : undefined} href="/taches?echeance=retard" />
                 <Stat label="Projets actifs" value={bureau.activeProjects} href="/projets" />

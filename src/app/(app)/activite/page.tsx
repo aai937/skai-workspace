@@ -13,7 +13,7 @@ const ENTITY_LABELS: Record<string, string> = {
   ideas: 'Idée',
   documents: 'Document',
   comments: 'Commentaire',
-  pole_memberships: 'Pôle',
+  pole_memberships: 'Équipe',
   profiles: 'Profil',
 };
 

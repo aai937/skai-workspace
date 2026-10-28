@@ -79,15 +79,17 @@ export default async function TachesPage({ searchParams }: { searchParams: Searc
     listProjects(),
   ]);
 
-  const creatablePoles = session.poles.filter((p) => canCreateTask(session.viewer, p.id));
+  const creatablePoles = session.poles.filter((p) => canCreateTask(session.viewer));
   const canCreate = session.viewer.isBureau || creatablePoles.length > 0;
   const selectClass = 'min-h-9 rounded-lg border border-[var(--c-line)] bg-[var(--c-surface)] px-2 text-sm';
 
   return (
     <>
       <PageHeader
-        title={view === 'mes-taches' ? 'Mes tâches' : 'Toutes les tâches'}
-        description="Filtrez par pôle, statut, priorité, projet ou échéance. Les tâches terminées restent consultables."
+        title={view === 'mes-taches' || !session.viewer.isBureau ? 'Mes tâches' : 'Toutes les tâches'}
+        description={session.viewer.isBureau
+          ? 'Toutes les tâches de l’association. Filtrez par équipe, statut, priorité, projet ou échéance.'
+          : 'Les tâches qui vous sont attribuées, et celles de vos équipes. Mettez à jour votre avancement en un clic.'}
         actions={canCreate ? <LinkButton href="/taches/nouvelle">Nouvelle tâche</LinkButton> : null}
       />
 
@@ -111,7 +113,7 @@ export default async function TachesPage({ searchParams }: { searchParams: Searc
           <input name="q" defaultValue={params.q} className={`${selectClass} w-44`} placeholder="Titre de la tâche" />
         </label>
         <label className="flex flex-col text-xs text-[var(--c-ink-soft)]">
-          Pôle
+          Équipe
           <select name="pole" defaultValue={params.pole ?? ''} className={selectClass}>
             <option value="">Tous</option>
             {poles.map((p) => (
@@ -200,7 +202,7 @@ export default async function TachesPage({ searchParams }: { searchParams: Searc
                     {t.title}
                   </Link>
                   <p className="mt-0.5 text-xs text-[var(--c-ink-faint)]">
-                    {t.pole?.name ?? 'Sans pôle'} · {t.assignee?.full_name ?? 'Non attribuée'}
+                    {t.pole?.name ?? 'Sans équipe'} · {t.assignee?.full_name ?? 'Non attribuée'}
                     {t.project ? ` · ${t.project.title}` : ''}
                     {t.due_date ? ` · échéance ${formatDate(t.due_date)}` : ''}
                   </p>

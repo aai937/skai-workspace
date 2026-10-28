@@ -19,16 +19,6 @@ export type MemberDashboard = {
   notifications: NotificationItem[];
 };
 
-export type ResponsableDashboard = {
-  poles: { id: string; name: string; progress: number; total: number }[];
-  statusCounts: Record<TaskStatus, number>;
-  late: TaskListItem[];
-  blocked: TaskListItem[];
-  upcoming: TaskListItem[];
-  toAssign: TaskListItem[];
-  projectsNeedingAttention: ProjectWithProgress[];
-};
-
 export type BureauDashboard = {
   statusCounts: Record<TaskStatus, number>;
   lateCount: number;
@@ -84,30 +74,6 @@ export async function getMemberDashboard(session: Session): Promise<MemberDashbo
     projects: projects.filter((p) => p.lead?.id === id || memberProjectIds.has(p.id)).filter((p) => p.status !== 'termine' && p.status !== 'archive').slice(0, 5),
     events: events.slice(0, 4),
     notifications,
-  };
-}
-
-export async function getResponsableDashboard(session: Session): Promise<ResponsableDashboard> {
-  const poleIds = session.poles.filter((p) => p.role === 'responsable').map((p) => p.id);
-  const tasks = (await Promise.all(poleIds.map((poleId) => listTasks({ poleId })))).flat();
-  const unique = [...new Map(tasks.map((t) => [t.id, t])).values()];
-  const projects = await listProjects();
-  const poleProjects = projects.filter((p) => p.project_poles.some((pp) => poleIds.includes(pp.pole.id)));
-
-  return {
-    poles: session.poles
-      .filter((p) => poleIds.includes(p.id))
-      .map((p) => {
-        const list = unique.filter((t) => t.pole?.id === p.id);
-        const done = list.filter((t) => t.status === 'terminee').length;
-        return { id: p.id, name: p.name, progress: progressPercent(done, list.length), total: list.length };
-      }),
-    statusCounts: countByStatus(unique),
-    late: unique.filter(isLate),
-    blocked: unique.filter((t) => t.status === 'bloquee'),
-    upcoming: unique.filter((t) => inDays(t, 0, 7)).slice(0, 8),
-    toAssign: unique.filter((t) => !t.assignee && t.status !== 'terminee'),
-    projectsNeedingAttention: poleProjects.filter((p) => p.status !== 'termine' && (p.progress < 100 && p.due_date !== null && p.due_date < dayKey() || p.status === 'en_pause')),
   };
 }
 

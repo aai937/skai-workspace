@@ -106,5 +106,5 @@ export async function signUpAction(formData: FormData): Promise<ActionResult> {
   if (error && error.status !== 422 && error.status !== 400) {
     return fail('La demande n’a pas pu être enregistrée. Réessayez dans quelques minutes.');
   }
-  return ok(undefined, 'Demande enregistrée. Confirmez votre adresse par e-mail : le bureau validera ensuite votre accès et vous affectera à un pôle.');
+  return ok(undefined, 'Demande enregistrée. Confirmez votre adresse par e-mail : le bureau validera ensuite votre accès et vous affectera à un équipe.');
 }

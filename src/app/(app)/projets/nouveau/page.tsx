@@ -19,7 +19,7 @@ export default async function NouveauProjetPage() {
 
   return (
     <>
-      <PageHeader title="Nouveau projet" description="Un projet peut être transversal : sélectionnez tous les pôles concernés." />
+      <PageHeader title="Nouveau projet" description="Un projet peut être transversal : sélectionnez tous les équipes concernés." />
       <div className="rounded-2xl border border-[var(--c-line)] bg-[var(--c-surface)] p-5">
         <ActionForm action={createProjectAction} className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
@@ -35,7 +35,7 @@ export default async function NouveauProjetPage() {
             <TextAreaField name="deliverables" label="Livrables attendus" maxLength={3000} />
           </div>
           <fieldset className="md:col-span-2">
-            <legend className="text-sm font-medium">Pôles impliqués</legend>
+            <legend className="text-sm font-medium">Équipes impliqués</legend>
             <div className="mt-2 flex flex-wrap gap-3">
               {options.poles.map((p) => (
                 <label key={p.value} className="inline-flex items-center gap-2 text-sm">

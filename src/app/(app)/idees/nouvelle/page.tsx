@@ -29,7 +29,7 @@ export default async function NouvelleIdeePage() {
           <div className="md:col-span-2">
             <TextAreaField name="benefits" label="Bénéfices attendus" maxLength={3000} />
           </div>
-          <SelectField name="poleId" label="Pôle concerné" options={options.poles} placeholder="Aucun en particulier" />
+          <SelectField name="poleId" label="Équipe concerné" options={options.poles} placeholder="Aucun en particulier" />
           <SelectField
             name="effort"
             label="Effort estimé"

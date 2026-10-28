@@ -90,7 +90,7 @@ export async function setMemberGlobalRoleAction(profileId: string, role: 'bureau
   return ok(undefined, 'Rôle mis à jour.');
 }
 
-// Affectation à un pôle : le bureau attribue tout ; un responsable ajoute des membres simples à son pôle.
+// Affectation à un équipe : le bureau attribue tout ; un responsable ajoute des membres simples à son équipe.
 export async function setPoleMembershipAction(
   profileId: string,
   poleId: string,
@@ -103,11 +103,11 @@ export async function setPoleMembershipAction(
   if (!parsed.success) {
     return fail('Données invalides.');
   }
-  if (!canManagePoleMembers(session.viewer, poleId)) {
-    return fail("Vous ne gérez pas ce pôle.");
+  if (!canManagePoleMembers(session.viewer)) {
+    return fail("Vous ne gérez pas ce équipe.");
   }
-  if (parsed.data.role !== 'retirer' && !canAssignPoleRole(session.viewer, poleId, parsed.data.role)) {
-    return fail('Seul le bureau peut nommer un responsable de pôle.');
+  if (parsed.data.role !== 'retirer' && !canAssignPoleRole(session.viewer)) {
+    return fail('Seul le bureau peut nommer un responsable de équipe.');
   }
   const supabase = await createClient();
   const { error } =
@@ -124,7 +124,7 @@ export async function setPoleMembershipAction(
   return ok(undefined, 'Affectation enregistrée.');
 }
 
-// Formulaire d’affectation à un pôle (une ligne par membre dans l’interface du bureau).
+// Formulaire d’affectation à un équipe (une ligne par membre dans l’interface du bureau).
 export async function assignPoleFormAction(formData: FormData): Promise<ActionResult> {
   const role = formData.get('role');
   return setPoleMembershipAction(
@@ -168,11 +168,11 @@ export async function updateOwnProfileAction(formData: FormData): Promise<Action
   return ok(undefined, 'Profil enregistré.');
 }
 
-// Pôles : création et modification par le bureau, sans toucher au code.
+// Équipes : création et modification par le bureau, sans toucher au code.
 export async function savePoleAction(poleId: string | null, formData: FormData): Promise<ActionResult> {
   const session = await requireSession();
   if (!canManagePoles(session.viewer)) {
-    return fail('Seul le bureau gère les pôles.');
+    return fail('Seul le bureau gère les équipes.');
   }
   const parsed = poleSchema.safeParse({
     name: formData.get('name'),
@@ -180,7 +180,7 @@ export async function savePoleAction(poleId: string | null, formData: FormData):
     slug: formData.get('slug'),
   });
   if (!parsed.success) {
-    return fail('Vérifiez les champs du pôle.', zodFieldErrors(parsed.error.issues));
+    return fail('Vérifiez les champs du équipe.', zodFieldErrors(parsed.error.issues));
   }
   const supabase = await createClient();
   const { error } = poleId
@@ -191,7 +191,7 @@ export async function savePoleAction(poleId: string | null, formData: FormData):
   }
   revalidatePath('/poles');
   revalidatePath('/parametres/membres');
-  return ok(undefined, 'Pôle enregistré.');
+  return ok(undefined, 'Équipe enregistré.');
 }
 
 // Fréquence des mails de synthèse : chaque membre choisit la sienne.

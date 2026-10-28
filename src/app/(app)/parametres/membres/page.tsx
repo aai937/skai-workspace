@@ -7,7 +7,7 @@ import { listMembers, listPendingInvitations, listPoles } from '@/lib/data/peopl
 import { LABELS } from '@/lib/domain/constants';
 import { formatDate } from '@/lib/domain/format';
 
-export const metadata: Metadata = { title: 'Membres et pôles' };
+export const metadata: Metadata = { title: 'Membres et équipes' };
 
 export default async function MembresAdminPage() {
   const session = await requireBureau();
@@ -17,7 +17,7 @@ export default async function MembresAdminPage() {
 
   return (
     <>
-      <PageHeader title="Membres et pôles" description="Invitez, validez les comptes, attribuez les rôles. Seul le bureau modifie les rôles globaux." />
+      <PageHeader title="Membres et équipes" description="Invitez, validez les comptes, attribuez les rôles. Seul le bureau modifie les rôles globaux." />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="flex flex-col gap-6 lg:col-span-2">
@@ -61,18 +61,18 @@ export default async function MembresAdminPage() {
                     </div>
                   </div>
                   <p className="text-xs text-[var(--c-ink-soft)]">
-                    Pôles : {m.pole_memberships.filter((pm) => pm.pole).map((pm) => `${pm.pole!.name} (${LABELS.poleRole[pm.role].toLowerCase()})`).join(' · ') || 'aucun'}
+                    Équipes : {m.pole_memberships.filter((pm) => pm.pole).map((pm) => `${pm.pole!.name} (${LABELS.poleRole[pm.role].toLowerCase()})`).join(' · ') || 'aucun'}
                   </p>
                   <ActionForm action={assignPoleFormAction} resetOnSuccess className="grid gap-2 sm:grid-cols-[1fr_auto_auto] sm:items-end">
                     <input type="hidden" name="profileId" value={m.id} />
-                    <SelectField name="poleId" label="Affecter à un pôle" options={poleOptions} placeholder="Choisir un pôle" required />
+                    <SelectField name="poleId" label="Affecter à un équipe" options={poleOptions} placeholder="Choisir un équipe" required />
                     <SelectField
                       name="role"
                       label="Rôle"
                       options={[
                         { value: 'membre', label: 'Membre' },
                         { value: 'responsable', label: 'Responsable' },
-                        { value: 'retirer', label: 'Retirer du pôle' },
+                        { value: 'retirer', label: 'Retirer du équipe' },
                       ]}
                       defaultValue="membre"
                     />
@@ -114,10 +114,10 @@ export default async function MembresAdminPage() {
                 ]}
                 defaultValue="membre"
               />
-              <SelectField name="poleId" label="Pôle (facultatif)" options={poleOptions} placeholder="Aucun" />
+              <SelectField name="poleId" label="Équipe (facultatif)" options={poleOptions} placeholder="Aucun" />
               <SelectField
                 name="poleRole"
-                label="Rôle dans le pôle"
+                label="Rôle dans le équipe"
                 options={[
                   { value: 'membre', label: 'Membre' },
                   { value: 'responsable', label: 'Responsable' },
@@ -126,16 +126,16 @@ export default async function MembresAdminPage() {
               />
               <SubmitButton>Envoyer l’invitation</SubmitButton>
             </ActionForm>
-            <p className="mt-3 text-xs text-[var(--c-ink-faint)]">La personne reçoit un lien pour choisir son mot de passe. Le responsable de pôle nommé ici doit être accepté par le bureau.</p>
+            <p className="mt-3 text-xs text-[var(--c-ink-faint)]">La personne reçoit un lien pour choisir son mot de passe. Le responsable de équipe nommé ici doit être accepté par le bureau.</p>
           </Card>
 
           <Card id="poles">
-            <CardTitle>Créer ou renommer un pôle</CardTitle>
+            <CardTitle>Créer ou renommer un équipe</CardTitle>
             <ActionForm action={savePoleAction.bind(null, null)} resetOnSuccess className="grid gap-3">
-              <TextField name="name" label="Nom du pôle" required minLength={2} maxLength={80} />
+              <TextField name="name" label="Nom du équipe" required minLength={2} maxLength={80} />
               <TextField name="slug" label="Identifiant (URL)" required pattern="[a-z0-9-]{2,60}" hint="Lettres minuscules, chiffres et tirets." />
               <TextAreaField name="description" label="Description" maxLength={1000} />
-              <SubmitButton>Créer le pôle</SubmitButton>
+              <SubmitButton>Créer le équipe</SubmitButton>
             </ActionForm>
           </Card>
         </aside>

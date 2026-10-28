@@ -88,11 +88,11 @@ export async function deleteMessageAction(messageId: string): Promise<ActionResu
   return ok(undefined, 'Message supprimé.');
 }
 
-// Canal libre : bureau ou responsable de pôle.
+// Canal libre : bureau ou responsable de équipe.
 export async function createChannelAction(formData: FormData): Promise<ActionResult<{ id: string }>> {
   const session = await requireSession();
   if (!canCreateChannel(session.viewer)) {
-    return fail('Seul le bureau ou un responsable de pôle peut créer un canal.');
+    return fail('Seul le bureau ou un responsable de équipe peut créer un canal.');
   }
   const parsed = channelSchema.safeParse({
     name: formData.get('name'),

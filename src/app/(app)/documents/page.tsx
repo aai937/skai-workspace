@@ -45,7 +45,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
           </select>
         </label>
         <label className="flex flex-col text-xs text-[var(--c-ink-soft)]">
-          Pôle
+          Équipe
           <select name="pole" defaultValue={params.pole ?? ''} className="min-h-9 rounded-lg border border-[var(--c-line)] bg-[var(--c-surface)] px-2 text-sm">
             <option value="">Tous</option>
             {poles.map((p) => (

@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: 'Messages' };
 
 const GROUPS: { kind: ChannelRow['kind']; title: string }[] = [
   { kind: 'general', title: 'Général' },
-  { kind: 'pole', title: 'Pôles' },
+  { kind: 'pole', title: 'Équipes' },
   { kind: 'projet', title: 'Projets' },
   { kind: 'evenement', title: 'Événements' },
   { kind: 'libre', title: 'Canaux libres' },
@@ -26,7 +26,7 @@ export default async function MessagesPage() {
     <>
       <PageHeader
         title="Messages"
-        description="Discutez par pôle, par projet ou par événement. Les réponses se regroupent en fils, et les messages se mettent à jour en direct."
+        description="Discutez par équipe, par projet ou par événement. Les réponses se regroupent en fils, et les messages se mettent à jour en direct."
       />
 
       <div className="grid gap-6 lg:grid-cols-3">

@@ -4,26 +4,14 @@ import { buildAnnouncementMail, buildDigest, escapeHtml } from '@/lib/mail/diges
 import { canPublishAnnouncement, canCreateChannel } from '@/lib/domain/messaging';
 import type { Viewer } from '@/lib/domain/permissions';
 
-const POLE = 'pole-a';
-const bureau: Viewer = { id: 'b', isBureau: true, poleRoles: {} };
-const responsable: Viewer = { id: 'r', isBureau: false, poleRoles: { [POLE]: 'responsable' } };
-const membre: Viewer = { id: 'm', isBureau: false, poleRoles: { [POLE]: 'membre' } };
+const bureau: Viewer = { id: 'b', isBureau: true, poleIds: [] };
+const membre: Viewer = { id: 'm', isBureau: false, poleIds: ['equipe-a'] };
 
 describe('annonces et canaux', () => {
-  it('seul le bureau publie pour tous les membres', () => {
-    expect(canPublishAnnouncement(bureau, 'tous', null)).toBe(true);
-    expect(canPublishAnnouncement(responsable, 'tous', null)).toBe(false);
-  });
-
-  it('un responsable publie pour son pôle, pas pour un autre', () => {
-    expect(canPublishAnnouncement(responsable, 'pole', POLE)).toBe(true);
-    expect(canPublishAnnouncement(responsable, 'pole', 'autre')).toBe(false);
-    expect(canPublishAnnouncement(membre, 'pole', POLE)).toBe(false);
-  });
-
-  it('les canaux libres sont créés par le bureau ou un responsable', () => {
+  it('seul le bureau publie des annonces et crée des canaux libres', () => {
+    expect(canPublishAnnouncement(bureau)).toBe(true);
+    expect(canPublishAnnouncement(membre)).toBe(false);
     expect(canCreateChannel(bureau)).toBe(true);
-    expect(canCreateChannel(responsable)).toBe(true);
     expect(canCreateChannel(membre)).toBe(false);
   });
 });

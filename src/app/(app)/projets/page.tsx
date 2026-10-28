@@ -10,13 +10,14 @@ export const metadata: Metadata = { title: 'Projets' };
 
 export default async function ProjetsPage() {
   const session = await requireSession();
+  const isBureau = session.viewer.isBureau;
   const projects = await listProjects();
 
   return (
     <>
       <PageHeader
         title="Projets"
-        description="Les projets transversaux mobilisent plusieurs pôles. Leur avancement se calcule à partir des tâches et des jalons réellement terminés."
+        description={isBureau ? 'Tous les projets, transversaux ou non. L’avancement se calcule à partir des tâches et jalons terminés.' : 'Les projets de l’association. L’avancement se calcule à partir des tâches et jalons terminés.'}
         actions={canCreateProject(session.viewer) ? <LinkButton href="/projets/nouveau">Nouveau projet</LinkButton> : null}
       />
       {projects.length === 0 ? (
@@ -34,7 +35,7 @@ export default async function ProjetsPage() {
               </Link>
               <p className="mt-1 line-clamp-2 text-sm text-[var(--c-ink-soft)]">{p.description || 'Pas encore de description.'}</p>
               <p className="mt-3 text-xs text-[var(--c-ink-faint)]">
-                {LABELS.projectStatus[p.status]} · {p.project_poles.map((pp) => pp.pole.name).join(' · ') || 'Aucun pôle'}
+                {LABELS.projectStatus[p.status]} · {p.project_poles.map((pp) => pp.pole.name).join(' · ') || 'Aucun équipe'}
                 {p.lead ? ` · Responsable : ${p.lead.full_name}` : ''}
               </p>
               <div className="mt-4">

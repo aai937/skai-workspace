@@ -169,7 +169,7 @@ export async function convertIdeaToProjectAction(ideaId: string): Promise<Action
     dueDate: '',
   });
   if (!parsed.success) {
-    return fail('Cette idée doit d\'abord être rattachée à un pôle avant sa conversion.');
+    return fail('Cette idée doit d\'abord être rattachée à un équipe avant sa conversion.');
   }
 
   const { data: project, error } = await supabase
@@ -203,7 +203,7 @@ export async function convertIdeaToProjectAction(ideaId: string): Promise<Action
   redirect(`/projets/${project.id}`);
 }
 
-// Transforme une idée approuvée en tâche dans le pôle concerné.
+// Transforme une idée approuvée en tâche dans le équipe concerné.
 export async function convertIdeaToTaskAction(ideaId: string): Promise<ActionResult> {
   const session = await requireSession();
   const supabase = await createClient();
@@ -213,10 +213,10 @@ export async function convertIdeaToTaskAction(ideaId: string): Promise<ActionRes
     .eq('id', ideaId)
     .maybeSingle();
   if (!idea || idea.status !== 'approuvee' || !idea.pole_id) {
-    return fail('Seule une idée approuvée et rattachée à un pôle peut devenir une tâche.');
+    return fail('Seule une idée approuvée et rattachée à un équipe peut devenir une tâche.');
   }
-  if (!canCreateTask(session.viewer, idea.pole_id)) {
-    return fail('Seul le bureau ou un responsable du pôle peut créer cette tâche.');
+  if (!canCreateTask(session.viewer)) {
+    return fail('Seul le bureau ou un responsable du équipe peut créer cette tâche.');
   }
   const { data: task, error } = await supabase
     .from('tasks')

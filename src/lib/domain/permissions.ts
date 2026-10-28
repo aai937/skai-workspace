@@ -1,42 +1,34 @@
 // Règles de permissions de l'application (côté serveur).
-// Ces fonctions reproduisent les politiques RLS de supabase/migrations/0003_rls.sql :
-// elles décident ce que l'interface affiche et ce que les actions acceptent. La base reste la dernière barrière.
-// Masquer un bouton n'est jamais une mesure de sécurité : chaque action serveur appelle ces fonctions.
+// Ces fonctions reproduisent les politiques RLS de supabase/migrations : elles décident ce que l'interface
+// affiche et ce que les actions acceptent. La base reste la dernière barrière.
+// Les équipes sont des équipes : seul le bureau gère les tâches, projets, événements et annonces.
+// Masquer un bouton n'est jamais une mesure de sécurité.
 
-import type { DocumentVisibility, IdeaStatus, PoleRole } from './constants';
+import type { DocumentVisibility, IdeaStatus } from './constants';
 import { VOTABLE_IDEA_STATUSES } from './constants';
 
 export type Viewer = {
   id: string;
   isBureau: boolean;
-  // Rôle par pôle : un membre peut être responsable d'un pôle et simple membre d'un autre.
-  poleRoles: Readonly<Record<string, PoleRole>>;
+  // Équipes (équipes) auxquelles le membre appartient.
+  poleIds: readonly string[];
 };
 
-export function isPoleResponsable(viewer: Viewer, poleId: string | null | undefined): boolean {
-  return !!poleId && viewer.poleRoles[poleId] === 'responsable';
-}
-
-export function isAnyPoleResponsable(viewer: Viewer): boolean {
-  return Object.values(viewer.poleRoles).includes('responsable');
-}
-
 export function isPoleMember(viewer: Viewer, poleId: string | null | undefined): boolean {
-  return !!poleId && poleId in viewer.poleRoles;
+  return !!poleId && viewer.poleIds.includes(poleId);
 }
 
-// Membres et rôles : uniquement le bureau.
+// Membres et équipes : le bureau.
 export function canManageMembers(viewer: Viewer): boolean {
   return viewer.isBureau;
 }
 
-// Pôles : le bureau crée et renomme ; un responsable gère les membres simples de son pôle.
 export function canManagePoles(viewer: Viewer): boolean {
   return viewer.isBureau;
 }
 
-export function canManagePoleMembers(viewer: Viewer, poleId: string): boolean {
-  return viewer.isBureau || isPoleResponsable(viewer, poleId);
+export function canManagePoleMembers(viewer: Viewer): boolean {
+  return viewer.isBureau;
 }
 
 type TaskLike = {
@@ -45,16 +37,17 @@ type TaskLike = {
   assigneeId: string | null;
 };
 
-export function canCreateTask(viewer: Viewer, poleId: string): boolean {
-  return viewer.isBureau || isPoleResponsable(viewer, poleId);
+export function canCreateTask(viewer: Viewer): boolean {
+  return viewer.isBureau;
 }
 
-// Gestion complète d'une tâche (titre, attribution, date, archivage).
+// Gestion complète d'une tâche : le bureau.
 export function canManageTask(viewer: Viewer, task: TaskLike): boolean {
-  return viewer.isBureau || isPoleResponsable(viewer, task.poleId);
+  void task;
+  return viewer.isBureau;
 }
 
-// Mise à jour de l'avancement : gestionnaires, et personne à qui la tâche est attribuée.
+// Mise à jour de l'avancement : le bureau, et la personne à qui la tâche est attribuée.
 export function canUpdateTaskProgress(viewer: Viewer, task: TaskLike): boolean {
   return canManageTask(viewer, task) || task.assigneeId === viewer.id;
 }
@@ -71,22 +64,22 @@ type ProjectLike = {
 };
 
 export function canCreateProject(viewer: Viewer): boolean {
-  return viewer.isBureau || isAnyPoleResponsable(viewer);
+  return viewer.isBureau;
 }
 
+// Le bureau, ou le responsable désigné du projet (lead) et son créateur.
 export function canManageProject(viewer: Viewer, project: ProjectLike): boolean {
   return (
     viewer.isBureau ||
     (project.leadId !== null && project.leadId === viewer.id) ||
-    (project.createdBy !== null && project.createdBy === viewer.id) ||
-    project.poleIds.some((poleId) => isPoleResponsable(viewer, poleId))
+    (project.createdBy !== null && project.createdBy === viewer.id)
   );
 }
 
 type EventLike = ProjectLike;
 
 export function canCreateEvent(viewer: Viewer): boolean {
-  return viewer.isBureau || isAnyPoleResponsable(viewer);
+  return viewer.isBureau;
 }
 
 export function canManageEvent(viewer: Viewer, event: EventLike): boolean {
@@ -121,10 +114,7 @@ type DocumentLike = {
 };
 
 export function canReadDocument(viewer: Viewer, doc: DocumentLike): boolean {
-  if (viewer.isBureau) {
-    return true;
-  }
-  if (doc.visibility === 'membres') {
+  if (viewer.isBureau || doc.visibility === 'membres') {
     return true;
   }
   if (doc.visibility === 'pole') {
@@ -133,7 +123,7 @@ export function canReadDocument(viewer: Viewer, doc: DocumentLike): boolean {
   return false;
 }
 
-// Un membre ne peut publier qu'à destination de tous ou de son pôle ; le bureau peut tout publier.
+// Un membre ne publie qu'à destination de tous ou de son équipe ; le bureau peut tout publier.
 export function canUploadDocument(viewer: Viewer, visibility: DocumentVisibility, poleId: string | null): boolean {
   if (visibility === 'bureau') {
     return viewer.isBureau;
@@ -148,10 +138,7 @@ export function canManageDocument(viewer: Viewer, doc: DocumentLike): boolean {
   return viewer.isBureau || (doc.uploadedBy !== null && doc.uploadedBy === viewer.id);
 }
 
-// Rôle dans un pôle : le bureau attribue tout ; un responsable ne nomme que des membres simples de son pôle.
-export function canAssignPoleRole(viewer: Viewer, poleId: string, role: PoleRole): boolean {
-  if (viewer.isBureau) {
-    return true;
-  }
-  return role === 'membre' && isPoleResponsable(viewer, poleId);
+// Affectation à une équipe : le bureau uniquement.
+export function canAssignPoleRole(viewer: Viewer): boolean {
+  return viewer.isBureau;
 }

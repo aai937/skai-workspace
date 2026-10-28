@@ -59,8 +59,8 @@ export async function publishAnnouncementAction(formData: FormData): Promise<Act
     return fail('Vérifiez l’annonce.', zodFieldErrors(parsed.error.issues));
   }
   const input = parsed.data;
-  if (!canPublishAnnouncement(session.viewer, input.audience, input.poleId)) {
-    return fail('Vous ne pouvez publier une annonce que pour le bureau, ou pour votre pôle.');
+  if (!canPublishAnnouncement(session.viewer)) {
+    return fail('Vous ne pouvez publier une annonce que pour le bureau, ou pour votre équipe.');
   }
 
   const supabase = await createClient();

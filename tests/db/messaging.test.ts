@@ -60,8 +60,8 @@ beforeAll(async () => {
   `);
   const pole = await db.query<{ id: string }>("select id from public.poles where slug = 'projets-innovation'");
   await db.query(
-    "insert into public.pole_memberships (profile_id, pole_id, role) values ($1, $2, 'responsable'), ($3, $2, 'membre')",
-    [ids.responsable, pole.rows[0]!.id, ids.membre],
+    "insert into public.pole_memberships (profile_id, pole_id, role) values ($1, $2, 'membre'), ($3, $2, 'membre')",
+    [ids.bureau, pole.rows[0]!.id, ids.membre],
   );
 });
 
@@ -72,7 +72,7 @@ describe('canaux', () => {
   });
 
   it('crée un canal de projet automatiquement', async () => {
-    await db.query("insert into public.projects (title, created_by) values ('Hackathon IA', $1)", [ids.responsable]);
+    await db.query("insert into public.projects (title, created_by) values ('Hackathon IA', $1)", [ids.bureau]);
     const r = await db.query("select id from public.channels where kind = 'projet' and name = 'Hackathon IA'");
     expect(r.rows).toHaveLength(1);
   });
@@ -115,9 +115,9 @@ describe('messages', () => {
     const parent = await db.query<{ id: string }>('select id from public.messages limit 1');
     const other = await db.query<{ id: string }>("select id from public.channels where slug = 'projets-innovation'");
     await denied(
-      asUser(ids.responsable, () =>
+      asUser(ids.bureau, () =>
         db.query('insert into public.messages (channel_id, author_id, parent_id, body) values ($1, $2, $3, $4)', [
-          other.rows[0]!.id, ids.responsable, parent.rows[0]!.id, 'Réponse hors fil',
+          other.rows[0]!.id, ids.bureau, parent.rows[0]!.id, 'Réponse hors fil',
         ]),
       ),
     );
@@ -135,10 +135,10 @@ describe('messages', () => {
   it('la mention notifie le membre mentionné', async () => {
     await asUser(ids.membre, () =>
       db.query('insert into public.messages (channel_id, author_id, body, mentions) values ($1, $2, $3, $4)', [
-        generalId, ids.membre, '@Responsable regarde ça', [ids.responsable],
+        generalId, ids.membre, '@Responsable regarde ça', [ids.bureau],
       ]),
     );
-    const n = await asUser(ids.responsable, () => db.query("select id from public.notifications where kind = 'mention'"));
+    const n = await asUser(ids.bureau, () => db.query("select id from public.notifications where kind = 'mention'"));
     expect(n.rows.length).toBeGreaterThan(0);
   });
 });
@@ -152,23 +152,9 @@ describe('annonces', () => {
     );
   });
 
-  it('le responsable publie pour son pôle, et seuls les membres du pôle le voient', async () => {
-    const pole = await db.query<{ id: string }>("select id from public.poles where slug = 'projets-innovation'");
-    await asUser(ids.responsable, () =>
-      db.query("insert into public.announcements (title, body, audience, pole_id, author_id) values ('Réunion pôle', 'Mardi 18h', 'pole', $1, $2)", [pole.rows[0]!.id, ids.responsable]),
-    );
-    const membreVoit = await asUser(ids.membre, () => db.query("select id from public.announcements where title = 'Réunion pôle'"));
-    expect(membreVoit.rows).toHaveLength(1);
-    const autre = await db.query<{ id: string }>("select id from public.poles where slug = 'women-in-tech'");
-    await denied(
-      asUser(ids.responsable, () =>
-        db.query("insert into public.announcements (title, body, audience, pole_id, author_id) values ('Hors pôle', 'Non', 'pole', $1, $2)", [autre.rows[0]!.id, ids.responsable]),
-      ),
-    );
-  });
-
+  
   it('la lecture d\'une annonce est enregistrée pour son auteur seulement', async () => {
-    const a = await db.query<{ id: string }>("select id from public.announcements where title = 'Réunion pôle'");
+    const a = await db.query<{ id: string }>("insert into public.announcements (title, body, audience, author_id) values ('Lecture', 'Message', 'tous', $1) returning id", [ids.bureau]);
     await asUser(ids.membre, () =>
       db.query('insert into public.announcement_reads (announcement_id, profile_id) values ($1, $2)', [a.rows[0]!.id, ids.membre]),
     );

@@ -13,7 +13,7 @@ const dropdownItem =
 export function Topbar({ session, unread }: { session: Session; unread: number }) {
   const v = session.viewer;
   const create = [
-    { href: '/taches/nouvelle', label: 'Tâche', icon: ListChecks, show: session.poles.some((p) => canCreateTask(v, p.id)) || v.isBureau },
+    { href: '/taches/nouvelle', label: 'Tâche', icon: ListChecks, show: session.poles.some((p) => canCreateTask(v)) || v.isBureau },
     { href: '/idees/nouvelle', label: 'Idée', icon: Lightbulb, show: true },
     { href: '/projets/nouveau', label: 'Projet', icon: FolderKanban, show: canCreateProject(v) },
     { href: '/evenements/nouveau', label: 'Événement', icon: CalendarDays, show: canCreateEvent(v) },

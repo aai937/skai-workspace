@@ -44,7 +44,7 @@ export default async function ProjetDetailPage({ params }: { params: Promise<{ i
       </nav>
       <PageHeader
         title={project.title}
-        description={`${LABELS.projectStatus[project.status]} · ${project.project_poles.map((pp) => pp.pole.name).join(' · ') || 'Aucun pôle'}${project.lead ? ` · Responsable : ${project.lead.full_name}` : ''}`}
+        description={`${LABELS.projectStatus[project.status]} · ${project.project_poles.map((pp) => pp.pole.name).join(' · ') || 'Aucun équipe'}${project.lead ? ` · Responsable : ${project.lead.full_name}` : ''}`}
         actions={<PriorityBadge priority={project.priority} />}
       />
 
@@ -181,7 +181,7 @@ export default async function ProjetDetailPage({ params }: { params: Promise<{ i
                 <TextAreaField name="objectives" label="Objectifs" defaultValue={project.objectives} />
                 <TextAreaField name="deliverables" label="Livrables" defaultValue={project.deliverables} />
                 <fieldset>
-                  <legend className="text-sm font-medium">Pôles impliqués</legend>
+                  <legend className="text-sm font-medium">Équipes impliqués</legend>
                   <div className="mt-2 flex flex-col gap-2">
                     {options.poles.map((p) => (
                       <label key={p.value} className="inline-flex items-center gap-2 text-sm">

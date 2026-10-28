@@ -108,7 +108,7 @@ export default async function EvenementDetailPage({ params }: { params: Promise<
                     options={CHECKLIST_CATEGORIES.map((c) => ({ value: c, label: LABELS.checklist[c] }))}
                     required
                   />
-                  <SelectField name="poleId" label="Pôle" options={options.poles.filter((p) => event.event_poles.some((ep) => ep.pole.id === p.value))} required />
+                  <SelectField name="poleId" label="Équipe" options={options.poles.filter((p) => event.event_poles.some((ep) => ep.pole.id === p.value))} required />
                   <div className="md:col-span-2">
                     <TextField name="title" label="Intitulé" required minLength={2} maxLength={200} />
                   </div>
@@ -177,7 +177,7 @@ export default async function EvenementDetailPage({ params }: { params: Promise<
           <Card>
             <CardTitle>Description</CardTitle>
             <p className="whitespace-pre-wrap text-sm text-[var(--c-ink-soft)]">{event.description || 'Aucune description.'}</p>
-            <p className="mt-4 text-sm"><span className="text-xs text-[var(--c-ink-faint)]">Pôles :</span> {event.event_poles.map((p) => p.pole.name).join(' · ') || '—'}</p>
+            <p className="mt-4 text-sm"><span className="text-xs text-[var(--c-ink-faint)]">Équipes :</span> {event.event_poles.map((p) => p.pole.name).join(' · ') || '—'}</p>
             {event.logistics_notes ? (
               <div className="mt-4">
                 <p className="text-xs text-[var(--c-ink-faint)]">Notes logistiques</p>
@@ -197,7 +197,7 @@ export default async function EvenementDetailPage({ params }: { params: Promise<
                 <TextField name="location" label="Lieu" defaultValue={event.location} />
                 <TextField name="budgetEuros" label="Budget (€)" inputMode="decimal" defaultValue={event.budget_cents === null ? '' : String(event.budget_cents / 100)} />
                 <fieldset>
-                  <legend className="text-sm font-medium">Pôles impliqués</legend>
+                  <legend className="text-sm font-medium">Équipes impliqués</legend>
                   <div className="mt-2 flex flex-col gap-2">
                     {options.poles.map((p) => (
                       <label key={p.value} className="inline-flex items-center gap-2 text-sm">

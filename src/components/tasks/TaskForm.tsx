@@ -44,7 +44,7 @@ export function TaskForm({
       <div className="md:col-span-2">
         <TextAreaField name="description" label="Description" maxLength={5000} defaultValue={values.description} />
       </div>
-      <SelectField name="poleId" label="Pôle" options={poles} defaultValue={values.poleId} required />
+      <SelectField name="poleId" label="Équipe" options={poles} defaultValue={values.poleId} required />
       <SelectField name="assigneeId" label="Responsable de la tâche" options={members} placeholder="Non attribuée" defaultValue={values.assigneeId ?? ''} />
       <SelectField name="projectId" label="Projet" options={projects} placeholder="Aucun" defaultValue={values.projectId ?? ''} />
       <SelectField name="eventId" label="Événement" options={events} placeholder="Aucun" defaultValue={values.eventId ?? ''} />

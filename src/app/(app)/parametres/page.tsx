@@ -10,17 +10,17 @@ export default async function ParametresPage() {
 
   return (
     <>
-      <PageHeader title="Paramètres" description="Réservé au bureau : membres, invitations, pôles et droits d'accès." />
+      <PageHeader title="Paramètres" description="Réservé au bureau : membres, invitations, équipes et droits d'accès." />
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardTitle>Membres et invitations</CardTitle>
-          <p className="mb-4 text-sm text-[var(--c-ink-soft)]">Inviter, valider les comptes en attente, attribuer les rôles et les pôles.</p>
+          <p className="mb-4 text-sm text-[var(--c-ink-soft)]">Inviter, valider les comptes en attente, attribuer les rôles et les équipes.</p>
           <Link href="/parametres/membres" className="text-sm font-medium text-[var(--c-accent)] hover:underline">Ouvrir la gestion des membres</Link>
         </Card>
         <Card>
-          <CardTitle>Pôles</CardTitle>
-          <p className="mb-4 text-sm text-[var(--c-ink-soft)]">Renommer ou créer un pôle sans modifier le code.</p>
-          <Link href="/parametres/membres#poles" className="text-sm font-medium text-[var(--c-accent)] hover:underline">Gérer les pôles</Link>
+          <CardTitle>Équipes</CardTitle>
+          <p className="mb-4 text-sm text-[var(--c-ink-soft)]">Renommer ou créer un équipe sans modifier le code.</p>
+          <Link href="/parametres/membres#poles" className="text-sm font-medium text-[var(--c-accent)] hover:underline">Gérer les équipes</Link>
         </Card>
       </div>
     </>

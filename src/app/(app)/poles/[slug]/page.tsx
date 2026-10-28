@@ -9,7 +9,7 @@ import { isLate } from '@/lib/data/tasks';
 import { LABELS } from '@/lib/domain/constants';
 import { formatDate } from '@/lib/domain/format';
 
-export const metadata: Metadata = { title: 'Pôle' };
+export const metadata: Metadata = { title: 'Équipe' };
 
 export default async function PolePage({ params }: { params: Promise<{ slug: string }> }) {
   const session = await requireSession();
@@ -23,27 +23,26 @@ export default async function PolePage({ params }: { params: Promise<{ slug: str
   const poleProjects = projects.filter((p) => p.project_poles.some((pp) => pp.pole.id === pole.id) && p.status !== 'archive');
   const open = tasks.filter((t) => t.status !== 'terminee');
   const upcoming = open.filter((t) => t.due_date).slice(0, 8);
-  const responsables = pole.pole_memberships.filter((m) => m.role === 'responsable');
-  const membres = pole.pole_memberships.filter((m) => m.role === 'membre');
+  const membres = pole.pole_memberships;
   const canEdit = session.viewer.isBureau;
 
   return (
     <>
       <nav className="mb-3 text-sm text-[var(--c-ink-faint)]">
-        <Link href="/poles" className="hover:underline">Pôles et membres</Link>
+        <Link href="/poles" className="hover:underline">Équipes et membres</Link>
       </nav>
       <PageHeader
         title={pole.name}
         description={pole.description || 'Pas encore de description.'}
-        actions={canEdit ? <Link href="/parametres/membres" className="text-sm text-[var(--c-accent)]">Gérer le pôle</Link> : null}
+        actions={canEdit ? <Link href="/parametres/membres" className="text-sm text-[var(--c-accent)]">Gérer le équipe</Link> : null}
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="flex flex-col gap-6 lg:col-span-2">
           <Card>
-            <CardTitle>Tâches du pôle ({open.length} ouverte{open.length > 1 ? 's' : ''})</CardTitle>
+            <CardTitle>Tâches du équipe ({open.length} ouverte{open.length > 1 ? 's' : ''})</CardTitle>
             {open.length === 0 ? (
-              <EmptyState title="Aucune tâche ouverte" text="Les tâches du pôle apparaissent ici dès qu'elles sont créées." />
+              <EmptyState title="Aucune tâche ouverte" text="Les tâches du équipe apparaissent ici dès qu'elles sont créées." />
             ) : (
               <ul className="divide-y divide-[var(--c-line)]">
                 {open.slice(0, 30).map((t) => (
@@ -61,9 +60,9 @@ export default async function PolePage({ params }: { params: Promise<{ slug: str
           </Card>
 
           <Card>
-            <CardTitle>Projets du pôle</CardTitle>
+            <CardTitle>Projets du équipe</CardTitle>
             {poleProjects.length === 0 ? (
-              <p className="text-sm text-[var(--c-ink-faint)]">Aucun projet rattaché à ce pôle.</p>
+              <p className="text-sm text-[var(--c-ink-faint)]">Aucun projet rattaché à ce équipe.</p>
             ) : (
               <ul className="flex flex-col gap-2 text-sm">
                 {poleProjects.map((p) => (
@@ -78,15 +77,6 @@ export default async function PolePage({ params }: { params: Promise<{ slug: str
         </div>
 
         <aside className="flex flex-col gap-6">
-          <Card>
-            <CardTitle>Responsables</CardTitle>
-            <ul className="flex flex-col gap-2 text-sm">
-              {responsables.length === 0 ? <li className="text-[var(--c-ink-faint)]">À désigner par le bureau.</li> : null}
-              {responsables.map((m) => (
-                <li key={m.profile?.id}>{m.profile?.full_name}</li>
-              ))}
-            </ul>
-          </Card>
           <Card>
             <CardTitle>Membres</CardTitle>
             <ul className="flex flex-col gap-2 text-sm">

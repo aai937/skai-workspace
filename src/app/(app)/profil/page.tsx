@@ -40,14 +40,14 @@ export default async function ProfilPage() {
 
         <div className="flex flex-col gap-6">
           <Card>
-            <CardTitle>Mes pôles</CardTitle>
+            <CardTitle>Mes équipes</CardTitle>
             {session.poles.length === 0 ? (
-              <p className="text-sm text-[var(--c-ink-faint)]">Vous n’êtes rattaché à aucun pôle pour l’instant.</p>
+              <p className="text-sm text-[var(--c-ink-faint)]">Vous n’êtes rattaché à aucun équipe pour l’instant.</p>
             ) : (
               <ul className="flex flex-col gap-2 text-sm">
                 {session.poles.map((p) => (
                   <li key={p.id}>
-                    {p.name} <span className="text-xs text-[var(--c-ink-faint)]">· {p.role === 'responsable' ? 'Responsable' : 'Membre'}</span>
+                    {p.name}
                   </li>
                 ))}
               </ul>

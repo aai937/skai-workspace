@@ -52,8 +52,8 @@ export async function createTaskAction(formData: FormData): Promise<ActionResult
   if (!parsed.success) {
     return fail('Vérifiez les champs du formulaire.', zodFieldErrors(parsed.error.issues));
   }
-  if (!canCreateTask(session.viewer, parsed.data.poleId)) {
-    return fail("Seul le bureau ou un responsable du pôle peut créer une tâche dans ce pôle.");
+  if (!canCreateTask(session.viewer)) {
+    return fail("Seul le bureau ou un responsable du équipe peut créer une tâche dans ce équipe.");
   }
 
   const parentId = z.uuid().nullable().safeParse(formData.get('parentId') || null);
@@ -87,7 +87,7 @@ export async function updateTaskAction(taskId: string, formData: FormData): Prom
   }
   const task = { poleId: current.pole_id as string, creatorId: current.creator_id as string | null, assigneeId: current.assignee_id as string | null };
   if (!canManageTask(session.viewer, task)) {
-    return fail("Seul le bureau ou un responsable du pôle peut modifier cette tâche.");
+    return fail("Seul le bureau ou un responsable du équipe peut modifier cette tâche.");
   }
 
   const { error } = await supabase.from('tasks').update(toRow(parsed.data)).eq('id', taskId);
@@ -173,7 +173,7 @@ export async function archiveTaskAction(taskId: string): Promise<ActionResult> {
   }
   const task = { poleId: current.pole_id as string, creatorId: current.creator_id as string | null, assigneeId: current.assignee_id as string | null };
   if (!canManageTask(session.viewer, task)) {
-    return fail("Seul le bureau ou un responsable du pôle peut archiver cette tâche.");
+    return fail("Seul le bureau ou un responsable du équipe peut archiver cette tâche.");
   }
   const { error } = await supabase.from('tasks').update({ archived_at: new Date().toISOString() }).eq('id', taskId);
   if (error) {
@@ -224,7 +224,7 @@ export async function createChecklistItemAction(formData: FormData): Promise<Act
   const category = z.enum(CHECKLIST_CATEGORIES).safeParse(formData.get('checklistCategory'));
   const poleId = z.uuid().safeParse(formData.get('poleId'));
   if (!eventId.success || !category.success || !poleId.success) {
-    return fail('Choisissez la catégorie et le pôle de l\'élément.');
+    return fail('Choisissez la catégorie et le équipe de l\'élément.');
   }
   const parsed = taskInputSchema.safeParse({
     ...taskFromForm(formData),
@@ -238,8 +238,8 @@ export async function createChecklistItemAction(formData: FormData): Promise<Act
   if (!parsed.success) {
     return fail('Vérifiez les champs du formulaire.', zodFieldErrors(parsed.error.issues));
   }
-  if (!canCreateTask(session.viewer, parsed.data.poleId)) {
-    return fail('Seul le bureau ou un responsable du pôle peut ajouter un élément à la checklist.');
+  if (!canCreateTask(session.viewer)) {
+    return fail('Seul le bureau ou un responsable du équipe peut ajouter un élément à la checklist.');
   }
   const supabase = await createClient();
   const { error } = await supabase.from('tasks').insert({ ...toRow(parsed.data), creator_id: session.viewer.id });

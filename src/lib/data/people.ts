@@ -1,4 +1,4 @@
-// Membres, pôles et invitations. Les coordonnées ne sont lues que pour le membre lui-même et le bureau (RLS).
+// Membres, équipes et invitations. Les coordonnées ne sont lues que pour le membre lui-même et le bureau (RLS).
 import { createClient } from '@/lib/supabase/server';
 import type { GlobalRole, PoleRole } from '@/lib/domain/constants';
 import type { TaskListItem } from './tasks';
@@ -42,7 +42,7 @@ export async function listPoles(): Promise<PoleSummary[]> {
     .is('archived_at', null)
     .order('position');
   if (error) {
-    throw new Error(`Lecture des pôles impossible : ${error.message}`);
+    throw new Error(`Lecture des équipes impossible : ${error.message}`);
   }
   return (data ?? []) as unknown as PoleSummary[];
 }

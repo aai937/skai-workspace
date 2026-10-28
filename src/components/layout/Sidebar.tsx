@@ -38,7 +38,7 @@ export const NAV_GROUPS: NavGroup[] = [
     title: 'Travail',
     items: [
       { href: '/taches?vue=mes-taches', label: 'Mes tâches', icon: ListChecks },
-      { href: '/taches', label: 'Toutes les tâches', icon: ListTodo },
+      { href: '/taches', label: 'Toutes les tâches', icon: ListTodo, bureauOnly: true },
       { href: '/projets', label: 'Projets', icon: FolderKanban },
       { href: '/idees', label: 'Idées', icon: Lightbulb },
       { href: '/evenements', label: 'Événements', icon: CalendarDays },
@@ -47,9 +47,9 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     title: 'Association',
     items: [
-      { href: '/poles', label: 'Pôles et membres', icon: Users },
+      { href: '/poles', label: 'Équipes et membres', icon: Users },
       { href: '/documents', label: 'Documents', icon: FileText },
-      { href: '/activite', label: 'Activité', icon: Activity },
+      { href: '/activite', label: 'Activité', icon: Activity, bureauOnly: true },
       { href: '/parametres', label: 'Paramètres', icon: Settings, bureauOnly: true },
     ],
   },
@@ -90,7 +90,7 @@ export function Sidebar({ isBureau, name }: { isBureau: boolean; name: string })
                   }`}
                 >
                   <Icon aria-hidden="true" className="size-[18px] shrink-0" strokeWidth={active ? 2.1 : 1.8} />
-                  <span className="truncate">{item.label}</span>
+                  <span className="truncate">{!isBureau && item.href === '/poles' ? 'Mes équipes' : item.label}</span>
                 </Link>
               );
             })}

@@ -1,4 +1,4 @@
-// Listes déroulantes partagées par les formulaires (pôles, projets, événements, membres actifs).
+// Listes déroulantes partagées par les formulaires (équipes, projets, événements, membres actifs).
 import { createClient } from '@/lib/supabase/server';
 import { listEvents } from './events';
 import { listPoles } from './people';

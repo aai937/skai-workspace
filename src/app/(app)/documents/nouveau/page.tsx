@@ -27,7 +27,7 @@ export default async function NouveauDocumentPage() {
           </label>
           <SelectField name="category" label="Catégorie" options={DOCUMENT_CATEGORIES.map((c) => ({ value: c, label: LABELS.documentCategory[c] }))} defaultValue="autre" />
           <SelectField name="visibility" label="Visibilité" options={visibilities.map((v) => ({ value: v, label: LABELS.documentVisibility[v] }))} defaultValue="membres" />
-          <SelectField name="poleId" label="Pôle (si visibilité « Pôle »)" options={poles.map((p) => ({ value: p.id, label: p.name }))} placeholder="Aucun" />
+          <SelectField name="poleId" label="Équipe (si visibilité « Équipe »)" options={poles.map((p) => ({ value: p.id, label: p.name }))} placeholder="Aucun" />
           <TextField name="tags" label="Étiquettes" hint="Séparées par des virgules." />
           <div className="md:col-span-2">
             <TextAreaField name="description" label="Description" maxLength={2000} />

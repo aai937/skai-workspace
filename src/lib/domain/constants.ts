@@ -67,7 +67,8 @@ export type ChecklistCategory = (typeof CHECKLIST_CATEGORIES)[number];
 export const GLOBAL_ROLES = ['bureau', 'membre'] as const;
 export type GlobalRole = (typeof GLOBAL_ROLES)[number];
 
-export const POLE_ROLES = ['responsable', 'membre'] as const;
+// Les équipes sont des équipes : leurs membres y participent, la gestion revient au bureau.
+export const POLE_ROLES = ['membre'] as const;
 export type PoleRole = (typeof POLE_ROLES)[number];
 
 export const LABELS = {
@@ -104,7 +105,7 @@ export const LABELS = {
     convertie: 'Convertie en projet',
   },
   ideaEffort: { faible: 'Faible', moyen: 'Moyen', eleve: 'Élevé' },
-  documentVisibility: { bureau: 'Bureau', pole: 'Pôle', membres: 'Tous les membres' },
+  documentVisibility: { bureau: 'Bureau', pole: 'Équipe', membres: 'Tous les membres' },
   documentCategory: {
     compte_rendu: 'Compte rendu',
     procedure: 'Procédure',
@@ -118,7 +119,7 @@ export const LABELS = {
   commentTarget: { task: 'tâche', project: 'projet', idea: 'idée', event: 'événement' },
   eventGuestKind: { intervenant: 'Intervenant', partenaire: 'Partenaire' },
   globalRole: { bureau: 'Bureau', membre: 'Membre' },
-  poleRole: { responsable: 'Responsable de pôle', membre: 'Membre' },
+  poleRole: { membre: 'Membre' },
   checklist: {
     reservation_salle: 'Réservation de salle',
     materiel: 'Matériel',

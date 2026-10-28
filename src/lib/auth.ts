@@ -2,7 +2,6 @@
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
 import { createClient } from '@/lib/supabase/server';
-import type { PoleRole } from '@/lib/domain/constants';
 import type { Viewer } from '@/lib/domain/permissions';
 
 export type ProfileRow = {
@@ -17,7 +16,7 @@ export type ProfileRow = {
 export type Session = {
   profile: ProfileRow;
   viewer: Viewer;
-  poles: { id: string; slug: string; name: string; role: PoleRole }[];
+  poles: { id: string; slug: string; name: string }[];
 };
 
 // Lit la session une seule fois par requête (React cache).
@@ -41,23 +40,18 @@ export const getSession = cache(async (): Promise<Session | null> => {
 
   const { data: membershipData } = await supabase
     .from('pole_memberships')
-    .select('role, pole:poles!pole_id(id, slug, name, archived_at)')
+    .select('pole:poles!pole_id(id, slug, name, archived_at)')
     .eq('profile_id', user.id);
 
-  type MembershipRow = { role: PoleRole; pole: { id: string; slug: string; name: string; archived_at: string | null } | null };
+  type MembershipRow = { pole: { id: string; slug: string; name: string; archived_at: string | null } | null };
   const poles = ((membershipData ?? []) as unknown as MembershipRow[])
     .filter((m) => m.pole && !m.pole.archived_at)
-    .map((m) => ({ id: m.pole!.id, slug: m.pole!.slug, name: m.pole!.name, role: m.role }));
-
-  const poleRoles: Record<string, PoleRole> = {};
-  for (const pole of poles) {
-    poleRoles[pole.id] = pole.role;
-  }
+    .map((m) => ({ id: m.pole!.id, slug: m.pole!.slug, name: m.pole!.name }));
 
   return {
     profile,
     poles,
-    viewer: { id: profile.id, isBureau: profile.role === 'bureau' && profile.is_active, poleRoles },
+    viewer: { id: profile.id, isBureau: profile.role === 'bureau' && profile.is_active, poleIds: poles.map((p) => p.id) },
   };
 });
 
