@@ -5,8 +5,8 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { readPublicEnv } from '@/lib/env';
 
-// Routes publiques : connexion, lien reçu par e-mail, et tâche planifiée (protégée par CRON_SECRET).
-const PUBLIC_PATHS = ['/connexion', '/auth/confirm', '/mot-de-passe-oublie', '/api/cron/echeances'];
+// Routes publiques : connexion, lien e-mail, et routes protégées par un secret (CRON_SECRET) ou un jeton (calendrier).
+const PUBLIC_PATHS = ['/connexion', '/auth/confirm', '/mot-de-passe-oublie', '/api/cron', '/api/calendrier'];
 
 export async function proxy(request: NextRequest) {
   const env = readPublicEnv();

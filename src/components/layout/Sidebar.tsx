@@ -8,6 +8,8 @@ export type NavItem = { href: string; label: string; match: string };
 
 export const NAV_ITEMS: NavItem[] = [
   { href: '/tableau-de-bord', label: "Vue d'ensemble", match: '/tableau-de-bord' },
+  { href: '/annonces', label: 'Annonces', match: '/annonces' },
+  { href: '/messages', label: 'Messages', match: '/messages' },
   { href: '/taches?vue=mes-taches', label: 'Mes tâches', match: '/taches?vue=mes-taches' },
   { href: '/taches', label: 'Toutes les tâches', match: '/taches' },
   { href: '/projets', label: 'Projets', match: '/projets' },

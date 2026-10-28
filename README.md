@@ -52,7 +52,7 @@ Créez un projet Supabase (région Europe recommandée). Puis, dans le tableau d
 
 ## 4. Appliquer les migrations
 
-Les migrations sont dans `supabase/migrations/`. Elles s'appliquent dans l'ordre (0001 à 0006) et sont idempotentes pour les rôles et le bucket.
+Les migrations sont dans `supabase/migrations/`. Elles s'appliquent dans l'ordre (0001 à 0007) et sont idempotentes pour les rôles et le bucket.
 
 **Option A : éditeur SQL (le plus simple).** Dans **SQL Editor**, collez le contenu de chaque fichier dans l'ordre, puis exécutez-le.
 
@@ -197,3 +197,43 @@ scripts/create-first-admin.ts   création du premier membre du bureau
 - Les tests de la base tournent sur PGlite (Postgres embarqué) avec un schéma `auth` simulé : ils valident les règles RLS et les triggers, mais pas le comportement exact de Supabase Auth ni du stockage. Les vérifications de la section 10 sont à faire en production.
 - Le rappel d'échéances est une tâche quotidienne ; il n'y a pas d'envoi d'e-mail, uniquement des notifications internes.
 - Les annonces du tableau de bord ne sont pas encore modélisées.
+
+---
+
+## Messagerie, annonces et e-mails (version 2)
+
+### Ce qui est disponible
+
+- **Messages** (`/messages`) : canal général, un canal par pôle, par projet et par événement (créés automatiquement), et des canaux libres créés par le bureau ou un responsable. Messages en direct, fils de réponses, réactions emoji, mentions et suppression de ses propres messages.
+- **Annonces** (`/annonces`) : publiées par le bureau pour tous les membres, ou par un responsable pour son pôle. Épinglage, suivi de lecture, archivage et envoi optionnel par e-mail. Les dernières annonces apparaissent aussi sur le tableau de bord.
+- **E-mails** : synthèse quotidienne (ou hebdomadaire le lundi) des notifications, des annonces et des échéances à venir. Chaque membre choisit sa fréquence dans **Mon profil**, ou désactive les e-mails.
+- **Calendrier** : chaque membre dispose d'un lien `.ics` personnel (`/api/calendrier?token=...`) à ajouter à son agenda. Le lien se régénère depuis **Mon profil**.
+
+### Activer l'envoi d'e-mails (fournisseur gratuit)
+
+Le code est prêt, mais aucun e-mail ne part tant que le fournisseur n'est pas configuré.
+
+**Option 1 : Brevo (recommandé si vous n'avez pas de nom de domaine).** Créez un compte gratuit sur brevo.com (300 e-mails par jour). Validez une adresse d'expéditeur dans **Senders & IP**, puis créez une clé API dans **SMTP & API**. Renseignez :
+
+```
+MAIL_PROVIDER=brevo
+MAIL_API_KEY=<clé API Brevo>
+MAIL_FROM_EMAIL=<adresse validée>
+MAIL_FROM_NAME="skAI Workspace"
+```
+
+**Option 2 : Resend (si vous avez un domaine).** Créez un compte gratuit sur resend.com (3 000 e-mails par mois). Vérifiez votre domaine, puis créez une clé API. Renseignez `MAIL_PROVIDER=resend` et les mêmes variables, avec une adresse de ce domaine.
+
+Ajoutez les mêmes variables dans Vercel (Production). La synthèse part chaque jour à 6 h UTC.
+
+### Migration
+
+Appliquez `supabase/migrations/0007_messaging_announcements_mail.sql` après les migrations précédentes. Elle active aussi le temps réel pour les messages.
+
+### Tests
+
+```bash
+npm test
+```
+
+Les tests de sécurité couvrent les canaux, les messages, les annonces, les préférences de mail et le calendrier.

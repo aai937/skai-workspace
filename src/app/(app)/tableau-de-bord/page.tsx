@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Card, CardTitle, EmptyState, LateBadge, LinkButton, PageHeader, PriorityBadge, ProgressBar, Stat, TaskStatusBadge } from '@/components/ui';
 import { requireSession } from '@/lib/auth';
+import { listAnnouncements } from '@/lib/data/messaging';
 import { LABELS } from '@/lib/domain/constants';
 import { formatDate, formatDateTime } from '@/lib/domain/format';
 import { getBureauDashboard, getMemberDashboard, getResponsableDashboard } from '@/lib/data/dashboard';
@@ -45,6 +46,7 @@ export default async function TableauDeBordPage() {
   const member = await getMemberDashboard(session);
   const responsable = isResponsable && !isBureau ? await getResponsableDashboard(session) : null;
   const bureau = isBureau ? await getBureauDashboard() : null;
+  const announcements = (await listAnnouncements(session.viewer.id)).slice(0, 3);
 
   return (
     <>
@@ -165,6 +167,26 @@ export default async function TableauDeBordPage() {
         </div>
 
         <div className="flex flex-col gap-6">
+          <Card>
+            <CardTitle action={<Link href="/annonces" className="text-sm text-[var(--c-accent)]">Tout voir</Link>}>Annonces</CardTitle>
+            {announcements.length === 0 ? (
+              <p className="text-sm text-[var(--c-ink-faint)]">Aucune annonce pour le moment.</p>
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {announcements.map((a) => (
+                  <li key={a.id}>
+                    <Link href="/annonces" className="text-sm font-medium hover:underline">
+                      {a.pinned ? '📌 ' : ''}{a.title}
+                    </Link>
+                    <p className="text-xs text-[var(--c-ink-faint)]">
+                      {formatDateTime(a.created_at)}{a.read ? '' : ' · nouvelle'}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+
           <Card>
             <CardTitle>Mes projets actifs</CardTitle>
             {member.projects.length === 0 ? (

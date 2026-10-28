@@ -193,3 +193,36 @@ export async function savePoleAction(poleId: string | null, formData: FormData):
   revalidatePath('/parametres/membres');
   return ok(undefined, 'Pôle enregistré.');
 }
+
+// Fréquence des mails de synthèse : chaque membre choisit la sienne.
+export async function updateMailPreferenceAction(formData: FormData): Promise<ActionResult> {
+  const session = await requireSession();
+  const parsed = z.object({ digest: z.enum(['quotidien', 'hebdomadaire', 'desactive']) }).safeParse({
+    digest: formData.get('digest'),
+  });
+  if (!parsed.success) {
+    return fail('Choisissez une fréquence valide.');
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.from('profiles').update({ email_digest: parsed.data.digest }).eq('id', session.viewer.id);
+  if (error) {
+    return fail(dbErrorMessage(error));
+  }
+  revalidatePath('/profil');
+  return ok(undefined, 'Préférence enregistrée.');
+}
+
+// Nouveau lien de calendrier : l'ancien cesse immédiatement de fonctionner.
+export async function regenerateCalendarTokenAction(): Promise<ActionResult> {
+  const session = await requireSession();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('profiles')
+    .update({ calendar_token: crypto.randomUUID() })
+    .eq('id', session.viewer.id);
+  if (error) {
+    return fail(dbErrorMessage(error));
+  }
+  revalidatePath('/profil');
+  return ok(undefined, 'Nouveau lien de calendrier généré.');
+}
