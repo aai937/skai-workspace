@@ -93,16 +93,18 @@ export async function signUpAction(formData: FormData): Promise<ActionResult> {
   }
 
   const supabase = await createClient();
+  const origin = await siteOrigin();
   const { error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
       data: { full_name: parsed.data.fullName },
+      emailRedirectTo: `${origin}/auth/confirm?type=signup&next=/en-attente`,
     },
   });
   // Même message dans tous les cas : pas de révélation des comptes existants.
   if (error && error.status !== 422 && error.status !== 400) {
     return fail('La demande n’a pas pu être enregistrée. Réessayez dans quelques minutes.');
   }
-  return ok(undefined, 'Demande enregistrée. Le bureau validera votre accès et vous affectera à une équipe.');
+  return ok(undefined, 'Demande enregistrée. Confirmez votre adresse à partir du lien reçu : le bureau validera ensuite votre accès et vous affectera à une équipe.');
 }
