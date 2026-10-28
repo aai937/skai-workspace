@@ -53,7 +53,6 @@ export async function publishAnnouncementAction(formData: FormData): Promise<Act
     audience: formData.get('audience') ?? 'tous',
     poleId: formData.get('poleId') || null,
     pinned: formData.get('pinned') === 'on',
-    sendEmail: formData.get('sendEmail') === 'on',
   });
   if (!parsed.success) {
     return fail('Vérifiez l’annonce.', zodFieldErrors(parsed.error.issues));
@@ -76,18 +75,9 @@ export async function publishAnnouncementAction(formData: FormData): Promise<Act
     return fail(dbErrorMessage(error));
   }
 
-  let message = 'Annonce publiée.';
-  if (input.sendEmail) {
-    if (!mailConfigured()) {
-      message += ' Les e-mails n’ont pas été envoyés : la messagerie d’envoi n’est pas configurée.';
-    } else {
-      const result = await mailAudience(input.audience, input.poleId, input.title, input.body, session.profile.full_name);
-      message += ` E-mails envoyés : ${result.sent}${result.failed ? ` (échecs : ${result.failed})` : ''}.`;
-    }
-  }
   revalidatePath('/annonces');
   revalidatePath('/tableau-de-bord');
-  return ok(undefined, message);
+  return ok(undefined, 'Annonce publiée.');
 }
 
 export async function markAnnouncementReadAction(announcementId: string): Promise<ActionResult> {

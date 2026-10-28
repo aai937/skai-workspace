@@ -84,9 +84,6 @@ export default async function AnnoncesPage() {
               <label className="inline-flex items-center gap-2 text-sm">
                 <input type="checkbox" name="pinned" className="size-4" /> Épingler en haut de la liste
               </label>
-              <label className="inline-flex items-center gap-2 text-sm">
-                <input type="checkbox" name="sendEmail" className="size-4" /> Envoyer aussi par e-mail
-              </label>
               <SubmitButton>Publier</SubmitButton>
             </ActionForm>
           </Card>

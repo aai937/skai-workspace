@@ -55,24 +55,6 @@ export default async function ProfilPage() {
           </Card>
 
           <Card>
-            <CardTitle>E-mails</CardTitle>
-            <ActionForm action={updateMailPreferenceAction} className="grid gap-3">
-              <SelectField
-                name="digest"
-                label="Synthèse par e-mail"
-                hint="Vos échéances, annonces et notifications, regroupées."
-                options={[
-                  { value: 'quotidien', label: 'Chaque jour' },
-                  { value: 'hebdomadaire', label: 'Chaque lundi' },
-                  { value: 'desactive', label: 'Aucun e-mail' },
-                ]}
-                defaultValue={digest}
-              />
-              <SubmitButton>Enregistrer</SubmitButton>
-            </ActionForm>
-          </Card>
-
-          <Card>
             <CardTitle>Calendrier personnel</CardTitle>
             <p className="text-sm text-[var(--c-ink-soft)]">
               Ajoutez ce lien à Google Agenda, Outlook ou Apple Agenda (« s’abonner à une agenda par URL ») pour voir vos échéances et les événements.
