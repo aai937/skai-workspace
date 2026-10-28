@@ -76,3 +76,12 @@ export async function requireBureau(): Promise<Session> {
   }
   return session;
 }
+
+// Pour la gestion des membres et des équipes : administrateur du site uniquement.
+export async function requireSiteAdmin(): Promise<Session> {
+  const session = await requireSession();
+  if (!session.profile.is_site_admin) {
+    redirect('/acces-refuse');
+  }
+  return session;
+}

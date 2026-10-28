@@ -250,3 +250,24 @@ export async function createChecklistItemAction(formData: FormData): Promise<Act
   revalidatePath('/taches');
   return ok(undefined, 'Élément ajouté.');
 }
+
+// Transmission d'une tâche par son titulaire à un autre membre actif.
+export async function transferTaskAction(taskId: string, formData: FormData): Promise<ActionResult> {
+  await requireSession();
+  const ids = z.object({ taskId: z.uuid(), to: z.uuid('Choisissez un membre.') }).safeParse({
+    taskId,
+    to: formData.get('assigneeId'),
+  });
+  if (!ids.success) {
+    return fail(ids.error.issues[0]?.message ?? 'Données invalides.');
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('transfer_task', { p_task_id: ids.data.taskId, p_to: ids.data.to });
+  if (error) {
+    return fail(dbErrorMessage(error));
+  }
+  revalidatePath(`/taches/${ids.data.taskId}`);
+  revalidatePath('/taches');
+  revalidatePath('/tableau-de-bord');
+  return ok(undefined, 'Tâche transmise. Le nouveau titulaire est prévenu.');
+}

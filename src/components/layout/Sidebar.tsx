@@ -22,7 +22,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { Logo } from '@/components/brand/Logo';
 
-type NavItem = { href: string; label: string; icon: LucideIcon; bureauOnly?: boolean };
+type NavItem = { href: string; label: string; icon: LucideIcon; bureauOnly?: boolean; adminOnly?: boolean };
 type NavGroup = { title: string; items: NavItem[] };
 
 export const NAV_GROUPS: NavGroup[] = [
@@ -50,7 +50,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/poles', label: 'Équipes et membres', icon: Users },
       { href: '/documents', label: 'Documents', icon: FileText },
       { href: '/activite', label: 'Activité', icon: Activity, bureauOnly: true },
-      { href: '/parametres', label: 'Paramètres', icon: Settings, bureauOnly: true },
+      { href: '/parametres', label: 'Paramètres', icon: Settings, adminOnly: true },
     ],
   },
 ];
@@ -70,7 +70,7 @@ export function Sidebar({ isBureau, isSiteAdmin = false, name }: { isBureau: boo
   const nav = (
     <nav aria-label="Navigation principale" className="flex flex-col gap-6">
       {NAV_GROUPS.map((group) => {
-        const items = group.items.filter((i) => !i.bureauOnly || isBureau);
+        const items = group.items.filter((i) => (!i.bureauOnly || isBureau) && (!i.adminOnly || isSiteAdmin));
         return (
           <div key={group.title} className="flex flex-col gap-1">
             <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--c-ink-faint)]">{group.title}</p>

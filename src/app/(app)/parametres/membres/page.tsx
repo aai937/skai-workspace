@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import {
   bulkMembersAction,
+  deleteMemberAction,
   inviteMemberAction,
+  updateMemberAction,
   savePoleAction,
   setMemberGlobalRoleAction,
   setTeamArchivedAction,
@@ -9,7 +11,7 @@ import {
 import { ActionButton, ActionForm, ConfirmButton, SelectField, SubmitButton, TextAreaField, TextField } from '@/components/forms';
 import { SelectAll } from '@/components/members/SelectAll';
 import { Badge, Card, CardTitle, PageHeader } from '@/components/ui';
-import { requireBureau } from '@/lib/auth';
+import { requireSiteAdmin } from '@/lib/auth';
 import { listMembers, listPendingInvitations } from '@/lib/data/people';
 import { formatDate } from '@/lib/domain/format';
 import { createClient } from '@/lib/supabase/server';
@@ -24,7 +26,7 @@ const BULK_ACTIONS = [
 ];
 
 export default async function MembresAdminPage() {
-  const session = await requireBureau();
+  const session = await requireSiteAdmin();
   const supabase = await createClient();
   const [members, pending, teamResult] = await Promise.all([
     listMembers(),
@@ -39,7 +41,7 @@ export default async function MembresAdminPage() {
     <>
       <PageHeader
         title="Membres et équipes"
-        description="Validez les nouveaux comptes, affectez-les aux équipes et gérez les équipes, le tout depuis cette page."
+        description="Validez les comptes, affectez les membres aux équipes et gérez les équipes. Réservé à l’administrateur du site."
       />
 
       <div className="grid gap-6 xl:grid-cols-3">
@@ -108,6 +110,78 @@ export default async function MembresAdminPage() {
                 </table>
               </div>
             </ActionForm>
+          </Card>
+
+          <Card>
+            <CardTitle>Modifier un membre</CardTitle>
+            <p className="mb-4 text-sm text-[var(--c-ink-soft)]">
+              {session.profile.is_site_admin
+                ? 'En tant qu’administrateur du site, vous modifiez le nom, le rôle et les équipes, et vous pouvez supprimer un compte.'
+                : 'Vous modifiez le nom et les équipes. Seul l’administrateur du site change le rôle ou supprime un compte.'}
+            </p>
+            <ul className="flex flex-col divide-y divide-[var(--c-line)]">
+              {members.map((m) => {
+                const memberTeams = new Set(m.pole_memberships.filter((pm) => pm.pole && !pm.pole.archived_at).map((pm) => pm.pole!.id));
+                const isSelf = m.id === session.viewer.id;
+                return (
+                  <li key={m.id}>
+                    <details className="group py-3">
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
+                        <span className="min-w-0">
+                          <span className="font-medium">{m.full_name}</span>
+                          <span className="block truncate text-xs text-[var(--c-ink-faint)]">{m.email}</span>
+                        </span>
+                        <span className="shrink-0 text-sm text-[var(--c-accent)] group-open:hidden">Modifier</span>
+                        <span className="hidden shrink-0 text-sm text-[var(--c-ink-faint)] group-open:inline">Fermer</span>
+                      </summary>
+                      <div className="mt-4">
+                        <ActionForm action={updateMemberAction.bind(null, m.id)} className="grid gap-4">
+                          <TextField name="fullName" label="Nom complet" required minLength={2} maxLength={120} defaultValue={m.full_name} />
+                          {session.profile.is_site_admin && !isSelf ? (
+                            <SelectField
+                              name="role"
+                              label="Rôle"
+                              options={[
+                                { value: 'membre', label: 'Membre' },
+                                { value: 'bureau', label: 'Bureau' },
+                              ]}
+                              defaultValue={m.role}
+                            />
+                          ) : (
+                            <p className="text-sm text-[var(--c-ink-soft)]">Rôle : {m.is_site_admin ? 'Administrateur du site' : m.role === 'bureau' ? 'Bureau' : 'Membre'}</p>
+                          )}
+                          <fieldset>
+                            <legend className="text-sm font-medium">Équipes</legend>
+                            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                              {teamOptions.map((t) => (
+                                <label key={t.value} className="inline-flex items-center gap-2 text-sm">
+                                  <input type="checkbox" name="poleIds" value={t.value} defaultChecked={memberTeams.has(t.value)} className="size-4" />
+                                  {t.label}
+                                </label>
+                              ))}
+                            </div>
+                          </fieldset>
+                          <div>
+                            <SubmitButton>Enregistrer</SubmitButton>
+                          </div>
+                        </ActionForm>
+                        {session.profile.is_site_admin && !isSelf ? (
+                          <div className="mt-4 border-t border-[var(--c-line)] pt-4">
+                            <ConfirmButton
+                              variant="danger"
+                              message={`Supprimer définitivement le compte de ${m.full_name} ? Cette action est irréversible.`}
+                              action={deleteMemberAction.bind(null, m.id)}
+                            >
+                              Supprimer ce compte
+                            </ConfirmButton>
+                          </div>
+                        ) : null}
+                      </div>
+                    </details>
+                  </li>
+                );
+              })}
+            </ul>
           </Card>
 
           <Card>

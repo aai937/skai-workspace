@@ -231,7 +231,7 @@ describe('tâches', () => {
     );
     const t = await db.query<{ completed_at: Date | null }>('select completed_at from public.tasks where id = $1', [taskId]);
     expect(t.rows[0]!.completed_at).not.toBeNull();
-    const log = await asUser(ids.membre, () =>
+    const log = await asUser(ids.bureau, () =>
       db.query<{ summary: string }>("select summary from public.activity_log where entity_id = $1 and summary like 'Tâche — modification%'", [taskId]),
     );
     expect(log.rows.length).toBeGreaterThan(0);

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { signOutAction } from '@/app/actions/auth';
 import { Avatar } from '@/components/ui';
 import type { Session } from '@/lib/auth';
-import { canCreateEvent, canCreateProject, canCreateTask, canManageMembers } from '@/lib/domain/permissions';
+import { canCreateEvent, canCreateProject, canCreateTask } from '@/lib/domain/permissions';
 import { canPublishAnnouncementAnywhere } from '@/lib/domain/messaging';
 
 const dropdownItem =
@@ -78,7 +78,7 @@ export function Topbar({ session, unread }: { session: Session; unread: number }
                 <CircleUser aria-hidden="true" className="size-4 text-[var(--c-ink-soft)]" />
                 Mon profil
               </Link>
-              {canManageMembers(v) ? (
+              {session.profile.is_site_admin ? (
                 <Link href="/parametres/membres" className={dropdownItem}>
                   <Users aria-hidden="true" className="size-4 text-[var(--c-ink-soft)]" />
                   Gérer les membres

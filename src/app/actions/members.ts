@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { requireBureau, requireSession } from '@/lib/auth';
+import { requireSession, requireSiteAdmin } from '@/lib/auth';
 import { canAssignPoleRole, canManagePoleMembers, canManagePoles } from '@/lib/domain/permissions';
 import { memberInviteSchema, poleSchema, profileSchema } from '@/lib/domain/schemas';
 import { dbErrorMessage, fail, ok, zodFieldErrors, type ActionResult } from '@/lib/result';
@@ -13,7 +13,7 @@ import { POLE_ROLES, type PoleRole } from '@/lib/domain/constants';
 // Invitation par le bureau : enregistre l'adresse puis envoie le lien d'activation (clé service, côté serveur).
 // Sans invitation, un compte créé reste inactif et ne voit aucune donnée.
 export async function inviteMemberAction(formData: FormData): Promise<ActionResult> {
-  const session = await requireBureau();
+  const session = await requireSiteAdmin();
   const parsed = memberInviteSchema.safeParse({
     email: formData.get('email'),
     role: formData.get('role') ?? 'membre',
@@ -62,7 +62,7 @@ export async function inviteMemberAction(formData: FormData): Promise<ActionResu
 
 // Activation ou désactivation d'un compte (bureau).
 export async function setMemberActiveAction(profileId: string, active: boolean): Promise<ActionResult> {
-  await requireBureau();
+  await requireSiteAdmin();
   const parsed = z.object({ profileId: z.uuid(), active: z.boolean() }).safeParse({ profileId, active });
   if (!parsed.success) {
     return fail('Données invalides.');
@@ -77,7 +77,7 @@ export async function setMemberActiveAction(profileId: string, active: boolean):
 }
 
 export async function setMemberGlobalRoleAction(profileId: string, role: 'bureau' | 'membre'): Promise<ActionResult> {
-  const session = await requireBureau();
+  const session = await requireSiteAdmin();
   if (profileId === session.viewer.id && role !== 'bureau') {
     return fail('Vous ne pouvez pas retirer votre propre rôle de bureau.');
   }
@@ -233,7 +233,7 @@ export async function regenerateCalendarTokenAction(): Promise<ActionResult> {
 
 // Actions groupées sur plusieurs membres : valider, désactiver, ajouter à une équipe, retirer d'une équipe.
 export async function bulkMembersAction(formData: FormData): Promise<ActionResult> {
-  const session = await requireBureau();
+  const session = await requireSiteAdmin();
   const action = z.enum(['valider', 'desactiver', 'affecter', 'retirer']).safeParse(formData.get('action'));
   const ids = z.array(z.uuid()).min(1, 'Sélectionnez au moins un membre.').safeParse(formData.getAll('profileIds'));
   if (!action.success) {
@@ -284,7 +284,7 @@ export async function bulkMembersAction(formData: FormData): Promise<ActionResul
 
 // Archivage d'une équipe : elle disparaît des listes, son historique reste.
 export async function setTeamArchivedAction(poleId: string, archived: boolean): Promise<ActionResult> {
-  await requireBureau();
+  await requireSiteAdmin();
   const parsed = z.object({ id: z.uuid(), archived: z.boolean() }).safeParse({ id: poleId, archived });
   if (!parsed.success) {
     return fail('Équipe introuvable.');
@@ -300,4 +300,79 @@ export async function setTeamArchivedAction(poleId: string, archived: boolean): 
   revalidatePath('/parametres/membres');
   revalidatePath('/poles');
   return ok(undefined, archived ? 'Équipe archivée.' : 'Équipe réactivée.');
+}
+
+// Modification d'un membre : nom et équipes pour le bureau ; rôle réservé à l'administrateur du site.
+export async function updateMemberAction(profileId: string, formData: FormData): Promise<ActionResult> {
+  const session = await requireSiteAdmin();
+  const id = z.uuid().safeParse(profileId);
+  const name = z.string().trim().min(2, 'Le nom doit compter au moins 2 caractères.').max(120).safeParse(formData.get('fullName'));
+  if (!id.success || !name.success) {
+    return fail(!name.success ? name.error.issues[0]?.message ?? 'Nom invalide.' : 'Membre introuvable.');
+  }
+  const role = formData.get('role');
+  const wantsRole = role === 'bureau' || role === 'membre';
+  if (wantsRole && !session.profile.is_site_admin) {
+    return fail('Seul l’administrateur du site nomme ou retire les membres du bureau.');
+  }
+  if (wantsRole && id.data === session.viewer.id && role !== 'bureau') {
+    return fail('Vous ne pouvez pas retirer votre propre rôle.');
+  }
+
+  const supabase = await createClient();
+  const update: { full_name: string; role?: 'bureau' | 'membre' } = { full_name: name.data };
+  if (wantsRole) {
+    update.role = role;
+  }
+  const { error: profileError } = await supabase.from('profiles').update(update).eq('id', id.data);
+  if (profileError) {
+    return fail(dbErrorMessage(profileError));
+  }
+
+  // Équipes : seules les équipes actives sont synchronisées ; les archivées restent telles quelles.
+  const { data: activeTeams } = await supabase.from('poles').select('id').is('archived_at', null);
+  const activeIds = ((activeTeams ?? []) as { id: string }[]).map((t) => t.id);
+  const chosen = formData.getAll('poleIds').map(String).filter((v) => z.uuid().safeParse(v).success && activeIds.includes(v));
+  const removed = activeIds.filter((teamId) => !chosen.includes(teamId));
+  if (removed.length > 0) {
+    const { error } = await supabase.from('pole_memberships').delete().eq('profile_id', id.data).in('pole_id', removed);
+    if (error) {
+      return fail(dbErrorMessage(error));
+    }
+  }
+  if (chosen.length > 0) {
+    const { error } = await supabase
+      .from('pole_memberships')
+      .upsert(chosen.map((pole_id) => ({ profile_id: id.data, pole_id, role: 'membre' })), { onConflict: 'profile_id,pole_id' });
+    if (error) {
+      return fail(dbErrorMessage(error));
+    }
+  }
+
+  revalidatePath('/parametres/membres');
+  revalidatePath('/poles');
+  return ok(undefined, 'Membre mis à jour.');
+}
+
+// Suppression définitive d'un compte : réservée à l'administrateur du site, jamais sur soi-même.
+export async function deleteMemberAction(profileId: string): Promise<ActionResult> {
+  const session = await requireSiteAdmin();
+  if (!session.profile.is_site_admin) {
+    return fail('Seul l’administrateur du site peut supprimer un compte.');
+  }
+  const id = z.uuid().safeParse(profileId);
+  if (!id.success) {
+    return fail('Membre introuvable.');
+  }
+  if (id.data === session.viewer.id) {
+    return fail('Vous ne pouvez pas supprimer votre propre compte.');
+  }
+  const admin = createAdminClient();
+  const { error } = await admin.auth.admin.deleteUser(id.data);
+  if (error) {
+    return fail('Le compte n’a pas pu être supprimé. Réessayez.');
+  }
+  revalidatePath('/parametres/membres');
+  revalidatePath('/poles');
+  return ok(undefined, 'Compte supprimé.');
 }

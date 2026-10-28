@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { archiveTaskAction, createTaskAction, deleteTaskAction, toggleCollaboratorAction, updateTaskAction, updateTaskProgressAction } from '@/app/actions/tasks';
+import { archiveTaskAction, createTaskAction, deleteTaskAction, toggleCollaboratorAction, transferTaskAction, updateTaskAction, updateTaskProgressAction } from '@/app/actions/tasks';
 import { ActionButton, ActionForm, ConfirmButton, SelectField, SubmitButton, TextAreaField } from '@/components/forms';
 import { CommentsSection } from '@/components/CommentsSection';
 import { TaskForm } from '@/components/tasks/TaskForm';
@@ -95,6 +95,23 @@ export default async function TacheDetailPage({ params }: { params: Promise<{ id
                     maxLength={1000}
                   />
                 </div>
+              </ActionForm>
+            </Card>
+          ) : null}
+
+          {task.assignee?.id === session.viewer.id ? (
+            <Card>
+              <CardTitle>Transmettre la tâche</CardTitle>
+              <p className="mb-4 text-sm text-[var(--c-ink-soft)]">Confiez cette tâche à un autre membre. Vous ne serez plus responsable de son avancement.</p>
+              <ActionForm action={transferTaskAction.bind(null, task.id)} className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+                <SelectField
+                  name="assigneeId"
+                  label="Nouveau titulaire"
+                  options={options.members.filter((m) => m.value !== session.viewer.id)}
+                  placeholder="Choisir un membre"
+                  required
+                />
+                <SubmitButton>Transmettre</SubmitButton>
               </ActionForm>
             </Card>
           ) : null}

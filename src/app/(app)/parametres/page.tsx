@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Card, CardTitle, PageHeader } from '@/components/ui';
-import { requireBureau } from '@/lib/auth';
+import { requireSiteAdmin } from '@/lib/auth';
 
 export const metadata: Metadata = { title: 'Paramètres' };
 
 export default async function ParametresPage() {
-  await requireBureau();
+  await requireSiteAdmin();
 
   return (
     <>
