@@ -1,0 +1,21 @@
+# Configuration Supabase locale (supabase start / supabase db push).
+# En production, reportez les mêmes réglages dans le tableau de bord Supabase (Authentication).
+project_id = "skai-workspace"
+
+[api]
+enabled = true
+port = 54321
+
+[db]
+port = 54322
+major_version = 17
+
+[auth]
+enabled = true
+# Pas d'inscription publique : seuls les comptes invités par le bureau peuvent être créés.
+enable_signup = false
+site_url = "http://localhost:3000"
+# Ajoutez ici l'URL de production, par exemple https://skai.example.org/auth/confirm
+additional_redirect_urls = ["http://localhost:3000/auth/confirm"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true

@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+/* Tokens de couleur : une seule source, deux thèmes. */
+:root {
+  --c-canvas: #f7f7f5;
+  --c-surface: #ffffff;
+  --c-surface-muted: #f1f1ee;
+  --c-line: #e4e4df;
+  --c-ink: #1c1c1a;
+  --c-ink-soft: #55554f;
+  --c-ink-faint: #8a8a83;
+  --c-accent: #3d4fd6;
+  --c-accent-soft: #e9ecfc;
+  --c-danger: #b42318;
+  --c-danger-soft: #fdecea;
+  --c-warning: #9a6700;
+  --c-warning-soft: #fff4dc;
+  --c-success: #1f7a4d;
+  --c-success-soft: #e4f5ec;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --c-canvas: #101012;
+    --c-surface: #18181b;
+    --c-surface-muted: #202024;
+    --c-line: #2c2c31;
+    --c-ink: #f3f3f1;
+    --c-ink-soft: #b7b7b0;
+    --c-ink-faint: #81817a;
+    --c-accent: #8c9cff;
+    --c-accent-soft: #232846;
+    --c-danger: #ff8a80;
+    --c-danger-soft: #3a1d1b;
+    --c-warning: #f5c26b;
+    --c-warning-soft: #3a2f16;
+    --c-success: #6fd3a0;
+    --c-success-soft: #173325;
+  }
+}
+
+:root[data-theme="dark"] {
+  --c-canvas: #101012;
+  --c-surface: #18181b;
+  --c-surface-muted: #202024;
+  --c-line: #2c2c31;
+  --c-ink: #f3f3f1;
+  --c-ink-soft: #b7b7b0;
+  --c-ink-faint: #81817a;
+  --c-accent: #8c9cff;
+  --c-accent-soft: #232846;
+  --c-danger: #ff8a80;
+  --c-danger-soft: #3a1d1b;
+  --c-warning: #f5c26b;
+  --c-warning-soft: #3a2f16;
+  --c-success: #6fd3a0;
+  --c-success-soft: #173325;
+}
+
+@theme inline {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --color-canvas: var(--c-canvas);
+  --color-surface: var(--c-surface);
+  --color-surface-muted: var(--c-surface-muted);
+  --color-line: var(--c-line);
+  --color-ink: var(--c-ink);
+  --color-ink-soft: var(--c-ink-soft);
+  --color-ink-faint: var(--c-ink-faint);
+  --color-accent: var(--c-accent);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-danger: var(--c-danger);
+  --color-danger-soft: var(--c-danger-soft);
+  --color-warning: var(--c-warning);
+  --color-warning-soft: var(--c-warning-soft);
+  --color-success: var(--c-success);
+  --color-success-soft: var(--c-success-soft);
+}
+
+html {
+  background: var(--c-canvas);
+  color: var(--c-ink);
+  color-scheme: light dark;
+}
+
+body {
+  background: var(--c-canvas);
+  color: var(--c-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Mouvements discrets, désactivés si l'utilisateur les refuse. */
+@media (prefers-reduced-motion: no-preference) {
+  .fade-in {
+    animation: fade-in 180ms ease-out both;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Pas de défilement horizontal sur téléphone. */
+html,
+body {
+  overflow-x: hidden;
+}
