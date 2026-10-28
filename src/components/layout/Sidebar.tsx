@@ -62,7 +62,7 @@ function isActive(pathname: string, vue: string | null, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function Sidebar({ isBureau, name }: { isBureau: boolean; name: string }) {
+export function Sidebar({ isBureau, isSiteAdmin = false, name }: { isBureau: boolean; isSiteAdmin?: boolean; name: string }) {
   const pathname = usePathname();
   const vue = useSearchParams().get('vue');
   const [open, setOpen] = useState(false);
@@ -135,7 +135,7 @@ export function Sidebar({ isBureau, name }: { isBureau: boolean; name: string })
         <div className="min-h-0 flex-1 overflow-y-auto pr-1">{nav}</div>
         <p className="mt-4 px-2 text-xs text-[var(--c-ink-faint)]">
           <span className="block truncate font-medium text-[var(--c-ink-soft)]">{name}</span>
-          {isBureau ? 'Bureau' : 'Membre'}
+          {isSiteAdmin ? 'Administrateur' : isBureau ? 'Bureau' : 'Membre'}
         </p>
       </aside>
     </>

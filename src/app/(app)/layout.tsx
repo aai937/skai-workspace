@@ -12,7 +12,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col lg:flex-row">
       <Suspense fallback={null}>
-        <Sidebar isBureau={session.viewer.isBureau} name={session.profile.full_name} />
+        <Sidebar isBureau={session.viewer.isBureau} isSiteAdmin={session.profile.is_site_admin} name={session.profile.full_name} />
       </Suspense>
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar session={session} unread={unread} />

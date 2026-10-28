@@ -11,6 +11,7 @@ export type ProfileRow = {
   bio: string;
   role: 'bureau' | 'membre';
   is_active: boolean;
+  is_site_admin: boolean;
 };
 
 export type Session = {
@@ -30,7 +31,7 @@ export const getSession = cache(async (): Promise<Session | null> => {
 
   const { data: profileData } = await supabase
     .from('profiles')
-    .select('id, email, full_name, bio, role, is_active')
+    .select('id, email, full_name, bio, role, is_active, is_site_admin')
     .eq('id', user.id)
     .maybeSingle();
   const profile = profileData as ProfileRow | null;
