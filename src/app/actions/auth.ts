@@ -74,3 +74,37 @@ export async function setPasswordAction(formData: FormData): Promise<ActionResul
   }
   redirect('/tableau-de-bord');
 }
+
+// Demande d'inscription : le compte est créé mais reste inactif tant que le bureau ne l'a pas validé.
+export async function signUpAction(formData: FormData): Promise<ActionResult> {
+  const parsed = z
+    .object({
+      fullName: z.string().trim().min(2, 'Indiquez votre nom complet.').max(120),
+      email: z.string().trim().toLowerCase().max(254).pipe(z.email('Adresse e-mail invalide.')),
+      password: passwordSchema,
+    })
+    .safeParse({
+      fullName: formData.get('fullName'),
+      email: formData.get('email'),
+      password: formData.get('password'),
+    });
+  if (!parsed.success) {
+    return fail(parsed.error.issues[0]?.message ?? 'Données invalides.');
+  }
+
+  const supabase = await createClient();
+  const origin = await siteOrigin();
+  const { error } = await supabase.auth.signUp({
+    email: parsed.data.email,
+    password: parsed.data.password,
+    options: {
+      data: { full_name: parsed.data.fullName },
+      emailRedirectTo: `${origin}/auth/confirm?type=signup&next=/en-attente`,
+    },
+  });
+  // Même message dans tous les cas : pas de révélation des comptes existants.
+  if (error && error.status !== 422 && error.status !== 400) {
+    return fail('La demande n’a pas pu être enregistrée. Réessayez dans quelques minutes.');
+  }
+  return ok(undefined, 'Demande enregistrée. Confirmez votre adresse par e-mail : le bureau validera ensuite votre accès et vous affectera à un pôle.');
+}

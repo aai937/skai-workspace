@@ -33,7 +33,13 @@ export default async function ConnexionPage({ searchParams }: { searchParams: Pr
             <TextField name="password" label="Mot de passe" type="password" autoComplete="current-password" required />
             <SubmitButton>Se connecter</SubmitButton>
           </ActionForm>
-          <p className="mt-4 text-center text-sm">
+          <p className="mt-4 text-center text-sm text-[var(--c-ink-soft)]">
+            Pas encore membre ?{' '}
+            <Link href="/inscription" className="font-medium text-[var(--c-accent)] underline-offset-4 hover:underline">
+              Demander à rejoindre
+            </Link>
+          </p>
+          <p className="mt-2 text-center text-sm">
             <Link href="/mot-de-passe-oublie" className="text-[var(--c-accent)] underline-offset-4 hover:underline">
               Mot de passe oublié ?
             </Link>

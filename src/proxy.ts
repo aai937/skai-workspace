@@ -6,7 +6,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { readPublicEnv } from '@/lib/env';
 
 // Routes publiques : connexion, lien e-mail, et routes protégées par un secret (CRON_SECRET) ou un jeton (calendrier).
-const PUBLIC_PATHS = ['/connexion', '/auth/confirm', '/mot-de-passe-oublie', '/api/cron', '/api/calendrier'];
+const PUBLIC_PATHS = ['/connexion', '/inscription', '/auth/confirm', '/mot-de-passe-oublie', '/api/cron', '/api/calendrier'];
 
 export async function proxy(request: NextRequest) {
   const env = readPublicEnv();

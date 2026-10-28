@@ -237,3 +237,10 @@ npm test
 ```
 
 Les tests de sécurité couvrent les canaux, les messages, les annonces, les préférences de mail et le calendrier.
+
+## Inscriptions et affectation aux pôles
+
+- **Demande d'inscription** : `/inscription`. Une personne crée son compte, mais reste **inactive** tant que le bureau ne l'a pas validée : elle ne voit aucune donnée.
+- **Validation et pôle** : dans **Paramètres > Membres et pôles**, le bureau valide le compte (section « En attente de validation »), puis l'affecte à un ou plusieurs pôles, en tant que membre ou responsable. Le bureau peut aussi être affecté à un pôle.
+- **Inviter directement** : le bureau peut aussi envoyer une invitation avec le pôle et le rôle déjà choisis.
+- Dans Supabase, l'inscription doit rester activée (Authentication > Sign In / Providers) pour que la demande fonctionne. Ajoutez l'URL de production dans **Authentication > URL Configuration**.
