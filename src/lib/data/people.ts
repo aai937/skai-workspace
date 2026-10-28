@@ -10,6 +10,7 @@ export type MemberRow = {
   bio: string;
   role: GlobalRole;
   is_active: boolean;
+  is_site_admin: boolean;
   pole_memberships: { role: PoleRole; pole: { id: string; slug: string; name: string; archived_at: string | null } | null }[];
 };
 
@@ -17,7 +18,7 @@ export async function listMembers(): Promise<MemberRow[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, email, full_name, bio, role, is_active, pole_memberships(role, pole:poles!pole_id(id, slug, name, archived_at))')
+    .select('id, email, full_name, bio, role, is_active, is_site_admin, pole_memberships(role, pole:poles!pole_id(id, slug, name, archived_at))')
     .order('full_name');
   if (error) {
     throw new Error(`Lecture des membres impossible : ${error.message}`);

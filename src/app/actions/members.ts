@@ -33,15 +33,19 @@ export async function inviteMemberAction(formData: FormData): Promise<ActionResu
     return fail(dbErrorMessage(inviteError));
   }
 
+  // Lien d'invitation généré côté serveur : pas d'envoi de mail, le bureau le transmet lui-même.
   const admin = createAdminClient();
   const origin = await siteOrigin();
-  const { error: sendError } = await admin.auth.admin.inviteUserByEmail(input.email, {
-    redirectTo: `${origin}/auth/confirm?type=invite&next=/definir-mot-de-passe`,
+  const { data: generated, error: linkError } = await admin.auth.admin.generateLink({
+    type: 'invite',
+    email: input.email,
+    options: { redirectTo: `${origin}/definir-mot-de-passe` },
   });
-  // Un compte déjà existant ne doit pas être signalé comme erreur sensible : on ne révèle rien de plus.
-  if (sendError && !/already|registered|exists/i.test(sendError.message)) {
-    return fail("L'invitation n'a pas pu être envoyée. Réessayez dans quelques minutes.");
+  const hashed = generated?.properties?.hashed_token;
+  if (linkError || !hashed) {
+    return fail("Le lien d’invitation n’a pas pu être créé. Réessayez dans quelques minutes.");
   }
+  const link = `${origin}/auth/confirm?token_hash=${hashed}&type=invite&next=/definir-mot-de-passe`;
 
   if (input.poleId && input.poleRole) {
     const { data: invited } = await admin.from('profiles').select('id').eq('email', input.email).maybeSingle();
@@ -53,7 +57,7 @@ export async function inviteMemberAction(formData: FormData): Promise<ActionResu
   }
 
   revalidatePath('/parametres/membres');
-  return ok(undefined, `Invitation envoyée à ${input.email}.`);
+  return ok(undefined, `Lien d’invitation pour ${input.email} (à copier et envoyer vous-même, valable 1 heure) : ${link}`);
 }
 
 // Activation ou désactivation d'un compte (bureau).
@@ -225,4 +229,75 @@ export async function regenerateCalendarTokenAction(): Promise<ActionResult> {
   }
   revalidatePath('/profil');
   return ok(undefined, 'Nouveau lien de calendrier généré.');
+}
+
+// Actions groupées sur plusieurs membres : valider, désactiver, ajouter à une équipe, retirer d'une équipe.
+export async function bulkMembersAction(formData: FormData): Promise<ActionResult> {
+  const session = await requireBureau();
+  const action = z.enum(['valider', 'desactiver', 'affecter', 'retirer']).safeParse(formData.get('action'));
+  const ids = z.array(z.uuid()).min(1, 'Sélectionnez au moins un membre.').safeParse(formData.getAll('profileIds'));
+  if (!action.success) {
+    return fail('Choisissez une action.');
+  }
+  if (!ids.success) {
+    return fail(ids.error.issues[0]?.message ?? 'Sélection invalide.');
+  }
+  // On ne désactive pas son propre compte depuis cette liste.
+  const targets = action.data === 'desactiver' ? ids.data.filter((id) => id !== session.viewer.id) : ids.data;
+  const supabase = await createClient();
+
+  if (action.data === 'valider' || action.data === 'desactiver') {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ is_active: action.data === 'valider' })
+      .in('id', targets)
+      .select('id');
+    if (error) {
+      return fail(dbErrorMessage(error));
+    }
+    revalidatePath('/parametres/membres');
+    return ok(undefined, `${data?.length ?? 0} membre(s) mis à jour.`);
+  }
+
+  const team = z.uuid('Choisissez une équipe.').safeParse(formData.get('poleId'));
+  if (!team.success) {
+    return fail(team.error.issues[0]?.message ?? 'Choisissez une équipe.');
+  }
+  if (action.data === 'affecter') {
+    const { error } = await supabase
+      .from('pole_memberships')
+      .upsert(targets.map((profile_id) => ({ profile_id, pole_id: team.data, role: 'membre' })), { onConflict: 'profile_id,pole_id' });
+    if (error) {
+      return fail(dbErrorMessage(error));
+    }
+    revalidatePath('/parametres/membres');
+    return ok(undefined, `${targets.length} membre(s) ajouté(s) à l’équipe.`);
+  }
+
+  const { error } = await supabase.from('pole_memberships').delete().eq('pole_id', team.data).in('profile_id', targets);
+  if (error) {
+    return fail(dbErrorMessage(error));
+  }
+  revalidatePath('/parametres/membres');
+  return ok(undefined, `${targets.length} membre(s) retiré(s) de l’équipe.`);
+}
+
+// Archivage d'une équipe : elle disparaît des listes, son historique reste.
+export async function setTeamArchivedAction(poleId: string, archived: boolean): Promise<ActionResult> {
+  await requireBureau();
+  const parsed = z.object({ id: z.uuid(), archived: z.boolean() }).safeParse({ id: poleId, archived });
+  if (!parsed.success) {
+    return fail('Équipe introuvable.');
+  }
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('poles')
+    .update({ archived_at: archived ? new Date().toISOString() : null })
+    .eq('id', poleId);
+  if (error) {
+    return fail(dbErrorMessage(error));
+  }
+  revalidatePath('/parametres/membres');
+  revalidatePath('/poles');
+  return ok(undefined, archived ? 'Équipe archivée.' : 'Équipe réactivée.');
 }
