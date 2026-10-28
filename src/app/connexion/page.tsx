@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { signInAction } from '@/app/actions/auth';
 import { ActionForm, SubmitButton, TextField } from '@/components/forms';
+import { Logo } from '@/components/brand/Logo';
 import { Card } from '@/components/ui';
 
 export const metadata: Metadata = { title: 'Connexion' };
@@ -11,11 +12,11 @@ export default async function ConnexionPage({ searchParams }: { searchParams: Pr
   const next = params.suite && /^\/(?!\/)[\w\-/]*$/.test(params.suite) ? params.suite : undefined;
 
   return (
-    <main id="contenu" className="flex min-h-dvh items-center justify-center px-4 py-12">
+    <main id="contenu" className="flex min-h-dvh items-center justify-center bg-[radial-gradient(60%_50%_at_50%_0%,var(--c-accent-soft),transparent)] px-4 py-12">
       <div className="w-full max-w-sm">
-        <p className="mb-6 text-center text-lg font-semibold tracking-tight">
-          skAI <span className="font-normal text-[var(--c-ink-faint)]">Workspace</span>
-        </p>
+        <div className="mb-8 flex justify-center">
+          <Logo />
+        </div>
         <Card>
           <h1 className="text-xl font-semibold tracking-tight">Connexion</h1>
           <p className="mt-1 text-sm text-[var(--c-ink-soft)]">

@@ -155,7 +155,7 @@ export default async function TachesPage({ searchParams }: { searchParams: Searc
             <option value="aucune">Sans échéance</option>
           </select>
         </label>
-        <button type="submit" className="min-h-9 rounded-lg bg-[var(--c-accent)] px-4 text-sm font-medium text-white">
+        <button type="submit" className="min-h-9 rounded-lg bg-[var(--c-accent)] px-4 text-sm font-medium text-[var(--c-accent-ink)]">
           Filtrer
         </button>
         <Link href={filterHref({ vue: params.vue }, {})} className="min-h-9 self-center text-sm text-[var(--c-accent)]">

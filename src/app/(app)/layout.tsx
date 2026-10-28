@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { Suspense, type ReactNode } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
 import { requireSession } from '@/lib/auth';
@@ -11,7 +11,9 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-dvh flex-col lg:flex-row">
-      <Sidebar isBureau={session.viewer.isBureau} />
+      <Suspense fallback={null}>
+        <Sidebar isBureau={session.viewer.isBureau} name={session.profile.full_name} />
+      </Suspense>
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar session={session} unread={unread} />
         <main id="contenu" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 lg:px-8 lg:py-8">

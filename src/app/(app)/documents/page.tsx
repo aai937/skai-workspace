@@ -53,7 +53,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
             ))}
           </select>
         </label>
-        <button type="submit" className="min-h-9 rounded-lg bg-[var(--c-accent)] px-4 text-sm font-medium text-white">Filtrer</button>
+        <button type="submit" className="min-h-9 rounded-lg bg-[var(--c-accent)] px-4 text-sm font-medium text-[var(--c-accent-ink)]">Filtrer</button>
       </form>
 
       {documents.length === 0 ? (

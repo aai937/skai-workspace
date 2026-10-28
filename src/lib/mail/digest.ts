@@ -32,7 +32,7 @@ function section(title: string, items: DigestItem[], siteUrl: string): { html: s
   const html = `<h2 style="font-size:16px;margin:24px 0 8px">${escapeHtml(title)}</h2><ul style="padding-left:18px">${items
     .map(
       (i) =>
-        `<li style="margin-bottom:8px"><a href="${escapeHtml(absolute(siteUrl, i.link))}" style="color:#3d4fd6">${escapeHtml(i.title)}</a>${i.body ? `<br><span style="color:#55554f">${escapeHtml(i.body)}</span>` : ''}</li>`,
+        `<li style="margin-bottom:8px"><a href="${escapeHtml(absolute(siteUrl, i.link))}" style="color:#8b1a1f">${escapeHtml(i.title)}</a>${i.body ? `<br><span style="color:#55554f">${escapeHtml(i.body)}</span>` : ''}</li>`,
     )
     .join('')}</ul>`;
   const text = `\n${title}\n${items
@@ -78,7 +78,7 @@ export function buildAnnouncementMail(input: { siteUrl: string; title: string; b
 <p style="font-size:12px;color:#55554f">Annonce de ${escapeHtml(input.author)}</p>
 <h1 style="font-size:20px">${escapeHtml(input.title)}</h1>
 <p style="font-size:14px;white-space:pre-wrap">${escapeHtml(input.body)}</p>
-<p><a href="${escapeHtml(link)}" style="color:#3d4fd6">Voir l’annonce dans skAI Workspace</a></p>
+<p><a href="${escapeHtml(link)}" style="color:#8b1a1f">Voir l’annonce dans skAI Workspace</a></p>
 </body></html>`;
   const text = `Annonce de ${input.author}\n\n${input.title}\n\n${input.body}\n\nVoir : ${link}\n`;
   return { subject: `Annonce : ${input.title}`.slice(0, 200), html, text };

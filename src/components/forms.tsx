@@ -64,7 +64,7 @@ export function ActionForm({
 export function SubmitButton({ children, variant = 'primary', className = '' }: { children: ReactNode; variant?: 'primary' | 'secondary' | 'danger'; className?: string }) {
   const { pending } = useFormStatus();
   const styles = {
-    primary: 'bg-[var(--c-accent)] text-white hover:opacity-90',
+    primary: 'bg-[var(--c-accent)] text-[var(--c-accent-ink)] hover:opacity-90',
     secondary: 'border border-[var(--c-line)] bg-[var(--c-surface)] text-[var(--c-ink)] hover:bg-[var(--c-surface-muted)]',
     danger: 'bg-[var(--c-danger)] text-white hover:opacity-90',
   };

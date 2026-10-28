@@ -5,7 +5,7 @@ import { LABELS, type TaskPriority, type TaskStatus } from '@/lib/domain/constan
 
 export function Card({ children, className = '', id, as: Tag = 'section' }: { children: ReactNode; className?: string; id?: string; as?: 'section' | 'article' | 'div' }) {
   return (
-    <Tag id={id} className={`rounded-2xl border border-[var(--c-line)] bg-[var(--c-surface)] p-5 fade-in ${className}`}>
+    <Tag id={id} className={`rounded-2xl border border-[var(--c-line)] bg-[var(--c-surface)] p-5 shadow-[var(--shadow-card)] fade-in ${className}`}>
       {children}
     </Tag>
   );
@@ -87,7 +87,7 @@ export function LinkButton({
 }) {
   const styles =
     variant === 'primary'
-      ? 'bg-[var(--c-accent)] text-white hover:opacity-90'
+      ? 'bg-[var(--c-accent)] text-[var(--c-accent-ink)] hover:opacity-90'
       : 'border border-[var(--c-line)] bg-[var(--c-surface)] text-[var(--c-ink)] hover:bg-[var(--c-surface-muted)]';
   return (
     <Link href={href} className={`inline-flex min-h-10 items-center justify-center rounded-lg px-4 text-sm font-medium transition ${styles}`}>
