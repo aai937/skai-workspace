@@ -79,8 +79,7 @@ export default async function TachesPage({ searchParams }: { searchParams: Searc
     listProjects(),
   ]);
 
-  const creatablePoles = session.poles.filter((p) => canCreateTask(session.viewer));
-  const canCreate = session.viewer.isBureau || creatablePoles.length > 0;
+  const canCreate = canCreateTask(session.viewer);
   const selectClass = 'min-h-9 rounded-lg border border-[var(--c-line)] bg-[var(--c-surface)] px-2 text-sm';
 
   return (

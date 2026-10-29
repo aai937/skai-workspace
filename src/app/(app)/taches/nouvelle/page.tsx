@@ -12,13 +12,12 @@ export const metadata: Metadata = { title: 'Nouvelle tâche' };
 export default async function NouvelleTachePage({ searchParams }: { searchParams: Promise<{ pole?: string; evenement?: string }> }) {
   const session = await requireSession();
   const params = await searchParams;
-  const creatable = session.poles.filter((p) => canCreateTask(session.viewer)).map((p) => p.id);
-  if (!session.viewer.isBureau && creatable.length === 0) {
+  if (!canCreateTask(session.viewer)) {
     redirect('/acces-refuse');
   }
 
   const options = await getFormOptions();
-  const poles = session.viewer.isBureau ? options.poles : options.poles.filter((p) => creatable.includes(p.value));
+  const poles = options.poles;
 
   return (
     <>

@@ -3,47 +3,10 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { requireSession } from '@/lib/auth';
-import { buildAnnouncementMail } from '@/lib/mail/digest';
-import { mailConfigured, sendMail } from '@/lib/mail/send';
 import { canPublishAnnouncement } from '@/lib/domain/messaging';
 import { announcementSchema } from '@/lib/domain/messaging';
 import { dbErrorMessage, fail, ok, zodFieldErrors, type ActionResult } from '@/lib/result';
-import { createAdminClient, createClient } from '@/lib/supabase/server';
-import { siteOrigin } from '@/lib/site';
-
-// Envoi d'une annonce par e-mail à son audience. Les membres ayant désactivé les mails sont exclus.
-async function mailAudience(
-  audience: 'tous' | 'pole',
-  poleId: string | null,
-  title: string,
-  body: string,
-  author: string,
-): Promise<{ sent: number; failed: number }> {
-  const admin = createAdminClient();
-  const query = admin
-    .from('profiles')
-    .select('id, email, pole_memberships(pole_id)')
-    .eq('is_active', true)
-    .neq('email_digest', 'desactive');
-  const { data } = await query;
-  const recipients = ((data ?? []) as { email: string; pole_memberships: { pole_id: string }[] }[]).filter(
-    (p) => audience === 'tous' || p.pole_memberships.some((m) => m.pole_id === poleId),
-  );
-
-  const origin = await siteOrigin();
-  const mail = buildAnnouncementMail({ siteUrl: origin, title, body, author });
-  let sent = 0;
-  let failed = 0;
-  // Envois par petits lots pour rester sous les limites du fournisseur.
-  for (let i = 0; i < recipients.length; i += 10) {
-    const results = await Promise.all(recipients.slice(i, i + 10).map((r) => sendMail({ to: r.email, ...mail })));
-    for (const r of results) {
-      if (r.ok) sent += 1;
-      else failed += 1;
-    }
-  }
-  return { sent, failed };
-}
+import { createClient } from '@/lib/supabase/server';
 
 export async function publishAnnouncementAction(formData: FormData): Promise<ActionResult> {
   const session = await requireSession();

@@ -7,7 +7,6 @@ import { listEvents, type EventListItem } from './events';
 import { listIdeas } from './ideas';
 import { listProjects, type ProjectWithProgress } from './projects';
 import { dayKey, isLate, listTasks, type TaskListItem } from './tasks';
-import { progressPercent } from '@/lib/domain/format';
 
 export type MemberDashboard = {
   priorities: TaskListItem[];

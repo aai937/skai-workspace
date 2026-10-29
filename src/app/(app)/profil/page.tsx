@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { regenerateCalendarTokenAction, updateMailPreferenceAction, updateOwnProfileAction } from '@/app/actions/members';
-import { ActionForm, ConfirmButton, SelectField, SubmitButton, TextAreaField, TextField } from '@/components/forms';
+import { regenerateCalendarTokenAction, updateOwnProfileAction } from '@/app/actions/members';
+import { ActionForm, ConfirmButton, SubmitButton, TextAreaField, TextField } from '@/components/forms';
 import { Card, CardTitle, PageHeader } from '@/components/ui';
 import { requireSession } from '@/lib/auth';
 import { getProfileContacts } from '@/lib/data/people';
@@ -18,7 +18,6 @@ export default async function ProfilPage() {
     siteOrigin(),
   ]);
   const calendarToken = (prefs.data as { calendar_token: string } | null)?.calendar_token ?? '';
-  const digest = (prefs.data as { email_digest: string } | null)?.email_digest ?? 'quotidien';
   const calendarUrl = `${origin}/api/calendrier?token=${calendarToken}`;
 
   return (

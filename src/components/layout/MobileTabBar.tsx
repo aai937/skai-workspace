@@ -1,7 +1,7 @@
 'use client';
 
 // Barre de navigation en bas de l'écran, pour les téléphones : accès direct aux sections principales.
-import { CalendarDays, FolderKanban, House, ListChecks, Megaphone, MessagesSquare, Users, type LucideIcon } from 'lucide-react';
+import { FolderKanban, House, ListChecks, Megaphone, MessagesSquare, Users, type LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
