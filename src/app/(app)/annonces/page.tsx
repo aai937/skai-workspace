@@ -21,7 +21,7 @@ export default async function AnnoncesPage() {
   const poles = isBureau ? allPoles : [];
   const audienceOptions = [
     ...(isBureau ? [{ value: 'tous', label: 'Tous les membres' }] : []),
-    ...(poles.length > 0 ? [{ value: 'pole', label: 'Un équipe' }] : []),
+    ...(poles.length > 0 ? [{ value: 'pole', label: 'Une équipe' }] : []),
   ];
 
   return (
@@ -77,7 +77,7 @@ export default async function AnnoncesPage() {
               <SelectField name="audience" label="Destinataires" options={audienceOptions} defaultValue={audienceOptions[0]!.value} />
               <SelectField
                 name="poleId"
-                label="Équipe (si « Un équipe »)"
+                label="Équipe (si « Une équipe »)"
                 options={poles.map((p) => ({ value: p.id, label: p.name }))}
                 placeholder="Aucun"
               />

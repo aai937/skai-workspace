@@ -17,7 +17,7 @@ export default function InscriptionPage() {
         <Card>
           <h1 className="text-xl font-semibold tracking-tight">Demander à rejoindre</h1>
           <p className="mt-1 text-sm text-[var(--c-ink-soft)]">
-            Votre accès sera activé par le bureau, qui vous affectera à un équipe. Vous ne verrez les contenus qu’après validation.
+            Votre accès sera activé par le bureau, qui vous affectera à une équipe. Vous ne verrez les contenus qu’après validation.
           </p>
           <ActionForm action={signUpAction} resetOnSuccess className="mt-6 flex flex-col gap-4">
             <TextField name="fullName" label="Nom complet" autoComplete="name" required minLength={2} maxLength={120} />

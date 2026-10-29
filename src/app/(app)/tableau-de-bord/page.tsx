@@ -79,7 +79,8 @@ const STATUS_BAR: Record<string, string> = {
 
 // « Bonjour » jusqu'à 18 h, « Bonsoir » ensuite (heure de Paris).
 function salutation(): string {
-  const heure = Number(new Intl.DateTimeFormat('fr-FR', { hour: 'numeric', hour12: false, timeZone: TIME_ZONE }).format(new Date()));
+  const parts = new Intl.DateTimeFormat('fr-FR', { hour: 'numeric', hour12: false, timeZone: TIME_ZONE }).formatToParts(new Date());
+  const heure = Number(parts.find((p) => p.type === 'hour')?.value ?? 0);
   return heure < 18 ? 'Bonjour' : 'Bonsoir';
 }
 

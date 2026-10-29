@@ -19,7 +19,7 @@ export default async function ParametresPage() {
         </Card>
         <Card>
           <CardTitle>Équipes</CardTitle>
-          <p className="mb-4 text-sm text-[var(--c-ink-soft)]">Renommer ou créer un équipe sans modifier le code.</p>
+          <p className="mb-4 text-sm text-[var(--c-ink-soft)]">Renommer ou créer une équipe sans modifier le code.</p>
           <Link href="/parametres/membres#poles" className="text-sm font-medium text-[var(--c-accent)] hover:underline">Gérer les équipes</Link>
         </Card>
       </div>

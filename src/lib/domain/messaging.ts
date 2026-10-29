@@ -7,7 +7,7 @@ export type MailDigest = (typeof MAIL_DIGEST_OPTIONS)[number];
 
 export const REACTION_EMOJIS = ['👍', '🎉', '❤️', '👀', '🙏', '✅'] as const;
 
-// Messages : tout membre actif. Canaux libres : le bureau. Canaux de équipe, projet et événement : automatiques.
+// Messages : tout membre actif. Canaux libres : le bureau. Canaux d'équipe, projet et événement : automatiques.
 export function canCreateChannel(viewer: Viewer): boolean {
   return viewer.isBureau;
 }
@@ -50,7 +50,7 @@ export const announcementSchema = z
   })
   .superRefine((value, ctx) => {
     if (value.audience === 'pole' && !value.poleId) {
-      ctx.addIssue({ code: 'custom', path: ['poleId'], message: 'Choisissez le équipe concerné.' });
+      ctx.addIssue({ code: 'custom', path: ['poleId'], message: 'Choisissez l'équipe concerné.' });
     }
   });
 

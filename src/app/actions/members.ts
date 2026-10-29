@@ -94,7 +94,7 @@ export async function setMemberGlobalRoleAction(profileId: string, role: 'bureau
   return ok(undefined, 'Rôle mis à jour.');
 }
 
-// Affectation à un équipe : le bureau attribue tout ; un responsable ajoute des membres simples à son équipe.
+// Affectation à une équipe : le bureau attribue tout ; un responsable ajoute des membres simples à son équipe.
 export async function setPoleMembershipAction(
   profileId: string,
   poleId: string,
@@ -108,10 +108,10 @@ export async function setPoleMembershipAction(
     return fail('Données invalides.');
   }
   if (!canManagePoleMembers(session.viewer)) {
-    return fail("Vous ne gérez pas ce équipe.");
+    return fail("Vous ne gérez pas cette équipe.");
   }
   if (parsed.data.role !== 'retirer' && !canAssignPoleRole(session.viewer)) {
-    return fail('Seul le bureau peut nommer un responsable de équipe.');
+    return fail('Seul le bureau peut nommer un responsable d'équipe.');
   }
   const supabase = await createClient();
   const { error } =
@@ -128,7 +128,7 @@ export async function setPoleMembershipAction(
   return ok(undefined, 'Affectation enregistrée.');
 }
 
-// Formulaire d’affectation à un équipe (une ligne par membre dans l’interface du bureau).
+// Formulaire d’affectation à une équipe (une ligne par membre dans l’interface du bureau).
 export async function assignPoleFormAction(formData: FormData): Promise<ActionResult> {
   const role = formData.get('role');
   return setPoleMembershipAction(
@@ -184,7 +184,7 @@ export async function savePoleAction(poleId: string | null, formData: FormData):
     slug: formData.get('slug'),
   });
   if (!parsed.success) {
-    return fail('Vérifiez les champs du équipe.', zodFieldErrors(parsed.error.issues));
+    return fail('Vérifiez les champs de l'équipe.', zodFieldErrors(parsed.error.issues));
   }
   const supabase = await createClient();
   const { error } = poleId

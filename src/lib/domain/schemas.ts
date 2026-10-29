@@ -100,7 +100,7 @@ export const projectInputSchema = z
     status: z.enum(PROJECT_STATUSES),
     priority: z.enum(TASK_PRIORITIES),
     leadId: optionalUuid,
-    poleIds: z.array(uuid).min(1, 'Choisissez au moins un équipe').max(4),
+    poleIds: z.array(uuid).min(1, 'Choisissez au moins une équipe').max(4),
     startDate: isoDate,
     dueDate: isoDate,
   })
@@ -149,7 +149,7 @@ export const eventInputSchema = z
       .pipe(z.iso.datetime({ local: true, offset: true }).nullable()),
     location: text(200),
     leadId: optionalUuid,
-    poleIds: z.array(uuid).min(1, 'Choisissez au moins un équipe').max(4),
+    poleIds: z.array(uuid).min(1, 'Choisissez au moins une équipe').max(4),
     status: z.enum(EVENT_STATUSES),
     budgetEuros: z
       .string()
@@ -179,7 +179,7 @@ export const documentMetaSchema = z
   })
   .superRefine((value, ctx) => {
     if (value.visibility === 'pole' && !value.poleId) {
-      ctx.addIssue({ code: 'custom', path: ['poleId'], message: 'Choisissez le équipe concerné.' });
+      ctx.addIssue({ code: 'custom', path: ['poleId'], message: 'Choisissez l'équipe concerné.' });
     }
   });
 

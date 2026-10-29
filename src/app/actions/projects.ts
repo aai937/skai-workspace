@@ -49,7 +49,7 @@ function projectFromForm(formData: FormData) {
 export async function createProjectAction(formData: FormData): Promise<ActionResult> {
   const session = await requireSession();
   if (!canCreateProject(session.viewer)) {
-    return fail('Seul le bureau ou un responsable de équipe peut créer un projet.');
+    return fail('Seul le bureau ou un responsable d'équipe peut créer un projet.');
   }
   const parsed = projectInputSchema.safeParse(projectFromForm(formData));
   if (!parsed.success) {
