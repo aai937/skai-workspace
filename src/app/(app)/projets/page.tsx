@@ -8,10 +8,13 @@ import { canCreateProject } from '@/lib/domain/permissions';
 
 export const metadata: Metadata = { title: 'Projets' };
 
-export default async function ProjetsPage() {
+export default async function ProjetsPage({ searchParams }: { searchParams: Promise<{ archives?: string }> }) {
   const session = await requireSession();
   const isBureau = session.viewer.isBureau;
-  const projects = await listProjects();
+  const { archives } = await searchParams;
+  const showArchived = isBureau && archives === '1';
+  const projects = await listProjects({ includeArchived: showArchived });
+  const visible = showArchived ? projects.filter((p) => p.archived_at) : projects;
 
   return (
     <>
@@ -20,7 +23,16 @@ export default async function ProjetsPage() {
         description={isBureau ? 'Tous les projets, transversaux ou non. L’avancement se calcule à partir des tâches et jalons terminés.' : 'Les projets de l’association. L’avancement se calcule à partir des tâches et jalons terminés.'}
         actions={canCreateProject(session.viewer) ? <LinkButton href="/projets/nouveau">Nouveau projet</LinkButton> : null}
       />
-      {projects.length === 0 ? (
+      {isBureau ? (
+        <p className="mb-4 text-sm">
+          {showArchived ? (
+            <a href="/projets" className="text-[var(--c-accent)] hover:underline">Revenir aux projets actifs</a>
+          ) : (
+            <a href="/projets?archives=1" className="text-[var(--c-accent)] hover:underline">Voir les projets archivés</a>
+          )}
+        </p>
+      ) : null}
+      {visible.length === 0 ? (
         <EmptyState
           title="Aucun projet pour le moment"
           text="Un projet regroupe des tâches, des jalons, des documents et des membres autour d'un objectif."
@@ -28,7 +40,7 @@ export default async function ProjetsPage() {
         />
       ) : (
         <ul className="grid gap-4 md:grid-cols-2">
-          {projects.map((p) => (
+          {visible.map((p) => (
             <li key={p.id} className="rounded-2xl border border-[var(--c-line)] bg-[var(--c-surface)] p-5">
               <Link href={`/projets/${p.id}`} className="text-lg font-semibold tracking-tight hover:underline">
                 {p.title}
