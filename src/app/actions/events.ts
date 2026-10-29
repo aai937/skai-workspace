@@ -45,7 +45,7 @@ async function loadEventScope(eventId: string) {
 export async function createEventAction(formData: FormData): Promise<ActionResult<{ id: string }>> {
   const session = await requireSession();
   if (!canCreateEvent(session.viewer)) {
-    return fail('Seul le bureau ou un responsable d'équipe peut créer un événement.');
+    return fail('Seul le bureau ou un responsable d’équipe peut créer un événement.');
   }
   const parsed = eventInputSchema.safeParse(eventFromForm(formData));
   if (!parsed.success) {

@@ -34,15 +34,15 @@ export default async function PolePage({ params }: { params: Promise<{ slug: str
       <PageHeader
         title={pole.name}
         description={pole.description || 'Pas encore de description.'}
-        actions={canEdit ? <Link href="/parametres/membres" className="text-sm text-[var(--c-accent)]">Gérer l'équipe</Link> : null}
+        actions={canEdit ? <Link href="/parametres/membres" className="text-sm text-[var(--c-accent)]">Gérer l’équipe</Link> : null}
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="flex flex-col gap-6 lg:col-span-2">
           <Card>
-            <CardTitle>Tâches de l'équipe ({open.length} ouverte{open.length > 1 ? 's' : ''})</CardTitle>
+            <CardTitle>Tâches de l’équipe ({open.length} ouverte{open.length > 1 ? 's' : ''})</CardTitle>
             {open.length === 0 ? (
-              <EmptyState title="Aucune tâche ouverte" text="Les tâches de l'équipe apparaissent ici dès qu'elles sont créées." />
+              <EmptyState title="Aucune tâche ouverte" text="Les tâches de l’équipe apparaissent ici dès qu'elles sont créées." />
             ) : (
               <ul className="divide-y divide-[var(--c-line)]">
                 {open.slice(0, 30).map((t) => (
@@ -60,7 +60,7 @@ export default async function PolePage({ params }: { params: Promise<{ slug: str
           </Card>
 
           <Card>
-            <CardTitle>Projets de l'équipe</CardTitle>
+            <CardTitle>Projets de l’équipe</CardTitle>
             {poleProjects.length === 0 ? (
               <p className="text-sm text-[var(--c-ink-faint)]">Aucun projet rattaché à cette équipe.</p>
             ) : (

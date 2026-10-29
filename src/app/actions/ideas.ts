@@ -203,7 +203,7 @@ export async function convertIdeaToProjectAction(ideaId: string): Promise<Action
   redirect(`/projets/${project.id}`);
 }
 
-// Transforme une idée approuvée en tâche dans l'équipe concerné.
+// Transforme une idée approuvée en tâche dans l’équipe concerné.
 export async function convertIdeaToTaskAction(ideaId: string): Promise<ActionResult> {
   const session = await requireSession();
   const supabase = await createClient();
@@ -216,7 +216,7 @@ export async function convertIdeaToTaskAction(ideaId: string): Promise<ActionRes
     return fail('Seule une idée approuvée et rattachée à une équipe peut devenir une tâche.');
   }
   if (!canCreateTask(session.viewer)) {
-    return fail('Seul le bureau ou un responsable de l'équipe peut créer cette tâche.');
+    return fail('Seul le bureau ou un responsable de l’équipe peut créer cette tâche.');
   }
   const { data: task, error } = await supabase
     .from('tasks')

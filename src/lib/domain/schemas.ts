@@ -179,7 +179,7 @@ export const documentMetaSchema = z
   })
   .superRefine((value, ctx) => {
     if (value.visibility === 'pole' && !value.poleId) {
-      ctx.addIssue({ code: 'custom', path: ['poleId'], message: 'Choisissez l'équipe concerné.' });
+      ctx.addIssue({ code: 'custom', path: ['poleId'], message: 'Choisissez l’équipe concerné.' });
     }
   });
 

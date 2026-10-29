@@ -111,7 +111,7 @@ export async function setPoleMembershipAction(
     return fail("Vous ne gérez pas cette équipe.");
   }
   if (parsed.data.role !== 'retirer' && !canAssignPoleRole(session.viewer)) {
-    return fail('Seul le bureau peut nommer un responsable d'équipe.');
+    return fail('Seul le bureau peut nommer un responsable d’équipe.');
   }
   const supabase = await createClient();
   const { error } =
@@ -184,7 +184,7 @@ export async function savePoleAction(poleId: string | null, formData: FormData):
     slug: formData.get('slug'),
   });
   if (!parsed.success) {
-    return fail('Vérifiez les champs de l'équipe.', zodFieldErrors(parsed.error.issues));
+    return fail('Vérifiez les champs de l’équipe.', zodFieldErrors(parsed.error.issues));
   }
   const supabase = await createClient();
   const { error } = poleId
