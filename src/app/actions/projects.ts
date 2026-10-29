@@ -225,3 +225,45 @@ export async function archiveProjectAction(projectId: string): Promise<ActionRes
   revalidatePath('/projets');
   return ok(undefined, 'Projet archivé.');
 }
+
+// Réactivation d'un projet archivé : il revient dans la liste et son canal réapparaît.
+export async function unarchiveProjectAction(projectId: string): Promise<ActionResult> {
+  const session = await requireSession();
+  if (!session.viewer.isBureau) {
+    return fail('Seul le bureau réactive un projet.');
+  }
+  const id = z.uuid().safeParse(projectId);
+  if (!id.success) {
+    return fail('Projet introuvable.');
+  }
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('projects')
+    .update({ archived_at: null, status: 'a_lancer' })
+    .eq('id', id.data);
+  if (error) {
+    return fail(dbErrorMessage(error));
+  }
+  revalidatePath('/projets');
+  revalidatePath(`/projets/${id.data}`);
+  return ok(undefined, 'Projet réactivé.');
+}
+
+// Suppression définitive : bureau seulement. Les tâches liées restent, sans projet.
+export async function deleteProjectAction(projectId: string): Promise<ActionResult> {
+  const session = await requireSession();
+  if (!session.viewer.isBureau) {
+    return fail('Seul le bureau supprime un projet.');
+  }
+  const id = z.uuid().safeParse(projectId);
+  if (!id.success) {
+    return fail('Projet introuvable.');
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.from('projects').delete().eq('id', id.data);
+  if (error) {
+    return fail(dbErrorMessage(error));
+  }
+  revalidatePath('/projets');
+  redirect('/projets');
+}

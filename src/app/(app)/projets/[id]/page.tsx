@@ -5,6 +5,8 @@ import {
   addMilestoneAction,
   addProjectMemberAction,
   archiveProjectAction,
+  deleteProjectAction,
+  unarchiveProjectAction,
   removeProjectMemberAction,
   toggleMilestoneAction,
   updateProjectAction,
@@ -214,10 +216,23 @@ export default async function ProjetDetailPage({ params }: { params: Promise<{ i
                 <TextField name="dueDate" label="Fin prévue" type="date" defaultValue={project.due_date ?? ''} />
                 <SubmitButton>Enregistrer</SubmitButton>
               </ActionForm>
-              <div className="mt-4">
-                <ConfirmButton message="Archiver ce projet ?" action={archiveProjectAction.bind(null, project.id)}>
-                  Archiver le projet
-                </ConfirmButton>
+              <div className="mt-4 flex flex-col items-start gap-2">
+                {project.archived_at ? (
+                  <ActionButton action={unarchiveProjectAction.bind(null, project.id)}>Réactiver le projet</ActionButton>
+                ) : (
+                  <ConfirmButton message="Archiver ce projet ? Son canal de discussion sera fermé." action={archiveProjectAction.bind(null, project.id)}>
+                    Archiver le projet
+                  </ConfirmButton>
+                )}
+                {session.viewer.isBureau ? (
+                  <ConfirmButton
+                    variant="danger"
+                    message="Supprimer définitivement ce projet ? Ses membres, jalons et son canal seront supprimés. Les tâches liées restent dans la liste."
+                    action={deleteProjectAction.bind(null, project.id)}
+                  >
+                    Supprimer définitivement
+                  </ConfirmButton>
+                ) : null}
               </div>
             </Card>
           ) : null}
