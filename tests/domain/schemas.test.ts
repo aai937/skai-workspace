@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { eventInputSchema, ideaInputSchema, memberInviteSchema, passwordSchema, taskInputSchema } from '@/lib/domain/schemas';
-import { isOverdue, parisLocalToIso, progressPercent } from '@/lib/domain/format';
+import { formatDate, isOverdue, parisLocalToIso, progressPercent } from '@/lib/domain/format';
 
 const POLE = '3f1b4c1e-2d3a-4b5c-8d9e-0f1a2b3c4d5e';
 
@@ -86,6 +86,12 @@ describe('format', () => {
   it("calcule un pourcentage d'avancement sans division par zéro", () => {
     expect(progressPercent(0, 0)).toBe(0);
     expect(progressPercent(1, 4)).toBe(25);
+  });
+
+  it('formate une date seule comme un horodatage complet, sans planter', () => {
+    expect(formatDate('2026-11-03')).toContain('2026');
+    expect(formatDate('2026-10-29T09:51:57.355626+00:00')).toContain('2026');
+    expect(formatDate('pas une date')).toBe('—');
   });
 
   it('détecte les retards hors tâches terminées', () => {

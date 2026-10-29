@@ -15,7 +15,8 @@ export function formatDate(value: string | Date | null | undefined): string {
   if (!value) {
     return '—';
   }
-  return dateFormatter.format(typeof value === 'string' ? parseDateOnly(value) : value);
+  const date = typeof value === 'string' ? (value.length > 10 ? new Date(value) : parseDateOnly(value)) : value;
+  return Number.isNaN(date.getTime()) ? '—' : dateFormatter.format(date);
 }
 
 export function formatDateTime(value: string | Date | null | undefined): string {
