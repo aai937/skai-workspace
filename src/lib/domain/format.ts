@@ -23,7 +23,8 @@ export function formatDateTime(value: string | Date | null | undefined): string 
   if (!value) {
     return '—';
   }
-  return dateTimeFormatter.format(typeof value === 'string' ? new Date(value) : value);
+  const date = typeof value === 'string' ? new Date(value) : value;
+  return Number.isNaN(date.getTime()) ? '—' : dateTimeFormatter.format(date);
 }
 
 // « 2026-11-03 » -> Date à midi UTC : évite tout décalage de jour selon le fuseau.
