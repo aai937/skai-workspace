@@ -119,6 +119,13 @@ export default async function TableauDeBordPage() {
             <TaskList tasks={member.priorities} empty="Rien d'urgent pour l'instant. Profitez-en." />
           </Card>
 
+          {!isBureau ? (
+            <Card>
+              <CardTitle action={<Link href="/taches" className="text-sm text-[var(--c-accent)]">Toutes les missions</Link>}>Missions de mon équipe</CardTitle>
+              <TaskList tasks={member.teamTasks} empty="Aucune mission ouverte dans vos équipes pour le moment." />
+            </Card>
+          ) : null}
+
           {member.late.length > 0 ? (
             <Card className="border-[var(--c-danger)]/40">
               <CardTitle>Tâches en retard <LateBadge /></CardTitle>

@@ -72,7 +72,7 @@ export function SubmitButton({ children, variant = 'primary', className = '' }: 
     <button
       type="submit"
       disabled={pending}
-      className={`inline-flex min-h-10 items-center justify-center rounded-lg px-4 text-sm font-medium transition disabled:opacity-60 ${styles[variant]} ${className}`}
+      className={`inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-sm font-medium transition disabled:opacity-60 ${styles[variant]} ${className}`}
     >
       {pending ? 'Enregistrement…' : children}
     </button>
@@ -80,7 +80,7 @@ export function SubmitButton({ children, variant = 'primary', className = '' }: 
 }
 
 const inputClass =
-  'mt-1 block w-full min-h-10 rounded-lg border border-[var(--c-line)] bg-[var(--c-surface)] px-3 py-2 text-sm text-[var(--c-ink)] placeholder:text-[var(--c-ink-faint)] focus:outline-2 focus:outline-offset-2 focus:outline-[var(--c-accent)]';
+  'mt-1 block w-full min-h-11 rounded-lg border border-[var(--c-line)] bg-[var(--c-surface)] px-3 py-2 text-base text-[var(--c-ink)] sm:text-sm placeholder:text-[var(--c-ink-faint)] focus:outline-2 focus:outline-offset-2 focus:outline-[var(--c-accent)]';
 
 function FieldShell({ name, label, hint, children }: { name: string; label: string; hint?: string; children: ReactNode }) {
   const errors = useContext(FieldErrorsContext);

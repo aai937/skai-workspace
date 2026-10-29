@@ -1,4 +1,5 @@
 import { Suspense, type ReactNode } from 'react';
+import { MobileTabBar } from '@/components/layout/MobileTabBar';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
 import { requireSession } from '@/lib/auth';
@@ -16,9 +17,10 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       </Suspense>
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar session={session} unread={unread} />
-        <main id="contenu" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 lg:px-8 lg:py-8">
+        <main id="contenu" className="mx-auto w-full max-w-6xl flex-1 px-4 pb-28 pt-5 lg:px-8 lg:py-8 lg:pb-8">
           {children}
         </main>
+        <MobileTabBar isBureau={session.viewer.isBureau} />
       </div>
     </div>
   );

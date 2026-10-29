@@ -5,7 +5,7 @@ import { LABELS, type TaskPriority, type TaskStatus } from '@/lib/domain/constan
 
 export function Card({ children, className = '', id, as: Tag = 'section' }: { children: ReactNode; className?: string; id?: string; as?: 'section' | 'article' | 'div' }) {
   return (
-    <Tag id={id} className={`rounded-2xl border border-[var(--c-line)] bg-[var(--c-surface)] p-5 shadow-[var(--shadow-card)] fade-in ${className}`}>
+    <Tag id={id} className={`rounded-2xl border border-[var(--c-line)] bg-[var(--c-surface)] p-4 shadow-[var(--shadow-card)] fade-in sm:p-5 ${className}`}>
       {children}
     </Tag>
   );

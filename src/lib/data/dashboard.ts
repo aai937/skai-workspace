@@ -11,6 +11,7 @@ import { progressPercent } from '@/lib/domain/format';
 
 export type MemberDashboard = {
   priorities: TaskListItem[];
+  teamTasks: TaskListItem[];
   late: TaskListItem[];
   upcoming: TaskListItem[];
   blocked: TaskListItem[];
@@ -58,6 +59,7 @@ export async function getMemberDashboard(session: Session): Promise<MemberDashbo
     listProjects(),
   ]);
   const open = mine.filter((t) => t.status !== 'terminee');
+  const teamOpen = (await listTasks()).filter((t) => t.status !== 'terminee' && t.assignee?.id !== id);
 
   const supabase = await createClient();
   const { data: memberships } = await supabase.from('project_members').select('project_id').eq('profile_id', id);
@@ -68,6 +70,7 @@ export async function getMemberDashboard(session: Session): Promise<MemberDashbo
       .filter((t) => t.priority === 'urgente' || t.priority === 'haute' || isLate(t))
       .sort((a, b) => (PRIORITY_RANK[a.priority] ?? 9) - (PRIORITY_RANK[b.priority] ?? 9))
       .slice(0, 6),
+    teamTasks: teamOpen.slice(0, 8),
     late: open.filter(isLate),
     upcoming: open.filter((t) => inDays(t, 0, 14)).slice(0, 6),
     blocked: open.filter((t) => t.status === 'bloquee'),
