@@ -108,3 +108,28 @@ export async function signUpAction(formData: FormData): Promise<ActionResult> {
   }
   return ok(undefined, 'Demande enregistrée. Confirmez votre adresse à partir du lien reçu : le bureau validera ensuite votre accès et vous affectera à une équipe.');
 }
+
+// Validation du lien après clic : le jeton n'est utilisé qu'ici.
+export async function confirmLinkAction(formData: FormData): Promise<void> {
+  const parsed = z
+    .object({
+      token_hash: z.string().min(10).max(200),
+      type: z.enum(['invite', 'recovery', 'signup', 'email']),
+      next: z.string().max(300).optional(),
+    })
+    .safeParse({
+      token_hash: formData.get('token_hash'),
+      type: formData.get('type'),
+      next: formData.get('next') || undefined,
+    });
+  if (!parsed.success) {
+    redirect('/connexion?erreur=lien');
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.auth.verifyOtp({ type: parsed.data.type, token_hash: parsed.data.token_hash });
+  if (error) {
+    redirect('/connexion?erreur=lien');
+  }
+  const next = parsed.data.next && /^\/(?!\/)[\w\-/]*$/.test(parsed.data.next) ? parsed.data.next : '/definir-mot-de-passe';
+  redirect(next);
+}

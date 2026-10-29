@@ -1,23 +1,13 @@
-// Lien reçu par e-mail (invitation, réinitialisation) : vérifie le jeton puis ouvre la page suivante.
-import type { EmailOtpType } from '@supabase/supabase-js';
+// Lien reçu (invitation, réinitialisation) : on ne consomme pas le jeton ici. Un aperçu automatique
+// (messagerie, antivirus, navigateur) ouvrirait le lien et l'épuiserait. On affiche une page de confirmation.
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 
-const ALLOWED_TYPES: EmailOtpType[] = ['invite', 'recovery', 'signup', 'email'];
-
-export async function GET(request: NextRequest) {
+export function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
-  const tokenHash = searchParams.get('token_hash');
-  const type = searchParams.get('type') as EmailOtpType | null;
-  const next = searchParams.get('next');
-  const safeNext = next && /^\/(?!\/)[\w\-/]*$/.test(next) ? next : '/definir-mot-de-passe';
-
-  if (tokenHash && type && ALLOWED_TYPES.includes(type)) {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
-    if (!error) {
-      return NextResponse.redirect(new URL(safeNext, origin));
-    }
+  const target = new URL('/auth/valider', origin);
+  for (const key of ['token_hash', 'type', 'next']) {
+    const value = searchParams.get(key);
+    if (value) target.searchParams.set(key, value);
   }
-  return NextResponse.redirect(new URL('/connexion?erreur=lien', origin));
+  return NextResponse.redirect(target);
 }
