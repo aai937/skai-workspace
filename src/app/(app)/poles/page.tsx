@@ -48,7 +48,9 @@ export default async function PolesPage() {
                 <div className="min-w-0">
                   <p className="truncate font-medium">{m.full_name}</p>
                   <p className="text-xs text-[var(--c-ink-faint)]">{LABELS.globalRole[m.role]}</p>
-                  <p className="mt-1 text-xs text-[var(--c-ink-soft)]">{poleNames.join(' · ') || 'Aucune équipe'}</p>
+                  {poleNames.length > 0 || m.role !== 'bureau' ? (
+                    <p className="mt-1 text-xs text-[var(--c-ink-soft)]">{poleNames.join(' · ') || 'Aucune équipe'}</p>
+                  ) : null}
                 </div>
               </li>
             );
