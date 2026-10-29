@@ -26,9 +26,9 @@ export default async function ProjetsPage({ searchParams }: { searchParams: Prom
       {isBureau ? (
         <p className="mb-4 text-sm">
           {showArchived ? (
-            <a href="/projets" className="text-[var(--c-accent)] hover:underline">Revenir aux projets actifs</a>
+            <Link href="/projets" className="text-[var(--c-accent)] hover:underline">Revenir aux projets actifs</Link>
           ) : (
-            <a href="/projets?archives=1" className="text-[var(--c-accent)] hover:underline">Voir les projets archivés</a>
+            <Link href="/projets?archives=1" className="text-[var(--c-accent)] hover:underline">Voir les projets archivés</Link>
           )}
         </p>
       ) : null}
