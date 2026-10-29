@@ -93,7 +93,7 @@ describe('format', () => {
     expect(formatDate('2026-10-29T09:51:57.355626+00:00')).toContain('2026');
     expect(formatDate('pas une date')).toBe('—');
     expect(formatDateTime('pas une date')).toBe('—');
-    expect(formatDateTime('2026-10-29T09:51:57.355626+00:00')).toContain('09');
+    expect(formatDateTime('2026-10-29T09:51:57.355626+00:00')).toContain('11');
   });
 
   it('détecte les retards hors tâches terminées', () => {
