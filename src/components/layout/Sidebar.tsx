@@ -38,7 +38,7 @@ export const NAV_GROUPS: NavGroup[] = [
     title: 'Travail',
     items: [
       { href: '/taches?vue=mes-taches', label: 'Mes tâches', icon: ListChecks },
-      { href: '/taches', label: 'Toutes les tâches', icon: ListTodo, bureauOnly: true },
+      { href: '/taches', label: 'Toutes les tâches', icon: ListTodo },
       { href: '/projets', label: 'Projets', icon: FolderKanban },
       { href: '/idees', label: 'Idées', icon: Lightbulb },
       { href: '/evenements', label: 'Événements', icon: CalendarDays },
@@ -90,7 +90,7 @@ export function Sidebar({ isBureau, isSiteAdmin = false, name }: { isBureau: boo
                   }`}
                 >
                   <Icon aria-hidden="true" className="size-[18px] shrink-0" strokeWidth={active ? 2.1 : 1.8} />
-                  <span className="truncate">{!isBureau && item.href === '/poles' ? 'Mes équipes' : item.label}</span>
+                  <span className="truncate">{!isBureau && item.href === '/poles' ? 'Mes équipes' : !isBureau && item.href === '/taches' ? 'Tâches de mon équipe' : item.label}</span>
                 </Link>
               );
             })}

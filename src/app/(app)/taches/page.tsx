@@ -86,10 +86,10 @@ export default async function TachesPage({ searchParams }: { searchParams: Searc
   return (
     <>
       <PageHeader
-        title={view === 'mes-taches' || !session.viewer.isBureau ? 'Mes tâches' : 'Toutes les tâches'}
+        title={view === 'mes-taches' ? 'Mes tâches' : session.viewer.isBureau ? 'Toutes les tâches' : 'Tâches de mon équipe'}
         description={session.viewer.isBureau
           ? 'Toutes les tâches de l’association. Filtrez par équipe, statut, priorité, projet ou échéance.'
-          : 'Les tâches qui vous sont attribuées, et celles de vos équipes. Mettez à jour votre avancement en un clic.'}
+          : 'Les tâches de vos équipes et celles qui vous sont attribuées. Mettez à jour votre avancement en un clic.'}
         actions={canCreate ? <LinkButton href="/taches/nouvelle">Nouvelle tâche</LinkButton> : null}
       />
 
