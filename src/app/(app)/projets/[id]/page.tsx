@@ -44,7 +44,7 @@ export default async function ProjetDetailPage({ params }: { params: Promise<{ i
       </nav>
       <PageHeader
         title={project.title}
-        description={`${LABELS.projectStatus[project.status]} · ${project.project_poles.map((pp) => pp.pole.name).join(' · ') || 'Aucun équipe'}${project.lead ? ` · Responsable : ${project.lead.full_name}` : ''}`}
+        description={`${LABELS.projectStatus[project.status]} · ${project.project_poles.map((pp) => pp.pole.name).join(' · ') || 'Aucune équipe'}${project.lead ? ` · Responsable : ${project.lead.full_name}` : ''}`}
         actions={<PriorityBadge priority={project.priority} />}
       />
 

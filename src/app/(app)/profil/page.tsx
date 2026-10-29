@@ -39,20 +39,22 @@ export default async function ProfilPage() {
         </Card>
 
         <div className="flex flex-col gap-6">
-          <Card>
-            <CardTitle>Mes équipes</CardTitle>
-            {session.poles.length === 0 ? (
-              <p className="text-sm text-[var(--c-ink-faint)]">Vous n’êtes rattaché à aucun équipe pour l’instant.</p>
-            ) : (
-              <ul className="flex flex-col gap-2 text-sm">
-                {session.poles.map((p) => (
-                  <li key={p.id}>
-                    {p.name}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Card>
+          {session.poles.length > 0 || !session.viewer.isBureau ? (
+            <Card>
+              <CardTitle>Mes équipes</CardTitle>
+              {session.poles.length === 0 ? (
+                <p className="text-sm text-[var(--c-ink-faint)]">Vous n’êtes rattaché à aucune équipe pour l’instant.</p>
+              ) : (
+                <ul className="flex flex-col gap-2 text-sm">
+                  {session.poles.map((p) => (
+                    <li key={p.id}>
+                      {p.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
+          ) : null}
 
           <Card>
             <CardTitle>Calendrier personnel</CardTitle>

@@ -18,7 +18,7 @@ export default async function PolesPage() {
 
       <section aria-label="Équipes" className="mb-8 grid gap-4 md:grid-cols-2">
         {poles.length === 0 ? (
-          <EmptyState title="Aucun équipe" text="Le bureau peut créer les équipes depuis les paramètres." />
+          <EmptyState title="Aucune équipe" text="Le bureau peut créer les équipes depuis les paramètres." />
         ) : (
           poles.map((pole) => {
             const count = pole.pole_memberships.length;
@@ -48,7 +48,7 @@ export default async function PolesPage() {
                 <div className="min-w-0">
                   <p className="truncate font-medium">{m.full_name}</p>
                   <p className="text-xs text-[var(--c-ink-faint)]">{LABELS.globalRole[m.role]}</p>
-                  <p className="mt-1 text-xs text-[var(--c-ink-soft)]">{poleNames.join(' · ') || 'Aucun équipe'}</p>
+                  <p className="mt-1 text-xs text-[var(--c-ink-soft)]">{poleNames.join(' · ') || 'Aucune équipe'}</p>
                 </div>
               </li>
             );

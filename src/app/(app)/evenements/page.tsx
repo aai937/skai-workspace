@@ -71,7 +71,7 @@ export default async function EvenementsPage({ searchParams }: { searchParams: P
               </div>
               <p className="mt-2 text-sm text-[var(--c-ink-soft)]">{formatDateTime(e.starts_at)}{e.location ? ` · ${e.location}` : ''}</p>
               <p className="mt-2 text-xs text-[var(--c-ink-faint)]">
-                {e.event_poles.map((p) => p.pole.name).join(' · ') || 'Aucun équipe'}
+                {e.event_poles.map((p) => p.pole.name).join(' · ') || 'Aucune équipe'}
                 {e.lead ? ` · Responsable : ${e.lead.full_name}` : ''}
               </p>
             </li>

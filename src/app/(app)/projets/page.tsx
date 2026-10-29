@@ -35,7 +35,7 @@ export default async function ProjetsPage() {
               </Link>
               <p className="mt-1 line-clamp-2 text-sm text-[var(--c-ink-soft)]">{p.description || 'Pas encore de description.'}</p>
               <p className="mt-3 text-xs text-[var(--c-ink-faint)]">
-                {LABELS.projectStatus[p.status]} · {p.project_poles.map((pp) => pp.pole.name).join(' · ') || 'Aucun équipe'}
+                {LABELS.projectStatus[p.status]} · {p.project_poles.map((pp) => pp.pole.name).join(' · ') || 'Aucune équipe'}
                 {p.lead ? ` · Responsable : ${p.lead.full_name}` : ''}
               </p>
               <div className="mt-4">
